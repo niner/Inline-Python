@@ -77,3 +77,21 @@ Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
     fprintf(stderr, "%i\n", length);
     return length;
 }
+
+PyObject *py_call_function(char *pkg, char *name, int len, PyObject *args[]) {
+    int i;
+    PyObject * const mod       = PyImport_AddModule(pkg);
+    PyObject * const dict      = PyModule_GetDict(mod);
+    PyObject * const func      = PyMapping_GetItemString(dict, name);
+    PyObject *o         = NULL;
+    PyObject *py_retval = NULL;
+    PyObject *tuple     = NULL;
+
+    tuple = PyTuple_New(0);
+
+    py_retval = PyObject_CallObject(func, tuple);
+    Py_DECREF(func);
+    Py_DECREF(tuple);
+
+    return py_retval;
+}

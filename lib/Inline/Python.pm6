@@ -43,6 +43,9 @@ sub py_unicode_to_char_star(OpaquePointer)
 sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
     returns Int { ... }
     native(&py_string_to_buf);
+sub py_call_function(Str, Str, int, CArray[OpaquePointer])
+    returns OpaquePointer { ... }
+    native(&py_call_function);
 
 method py_to_p6(OpaquePointer $value) {
     if py_int_check($value) {
@@ -65,6 +68,38 @@ method py_to_p6(OpaquePointer $value) {
     return Any;
 }
 
+method !setup_arguments(@args) {
+#    my $len = @args.elems;
+#    my @svs := CArray[OpaquePointer].new();
+#    loop (my Int $i = 0; $i < $len; $i = $i + 1) {
+#        @svs[$i] = self.p6_to_py(@args[$i]);
+#    }
+#    return $len, @svs;
+    return 0;
+}
+
+method !unpack_return_values($av) {
+#    my $av_len = py_av_top_index($av);
+#
+#    if $av_len == -1 {
+#        p5_sv_refcnt_dec($av);
+#        return;
+#    }
+#
+#    if $av_len == 0 {
+#        my $retval = self.p5_to_p6(p5_av_fetch($av, 0));
+#        p5_sv_refcnt_dec($av);
+#        return $retval;
+#    }
+#
+#    my @retvals;
+#    loop (my int32 $i = 0; $i <= $av_len; $i = $i + 1) {
+#        @retvals.push(self.p5_to_p6(p5_av_fetch($av, $i)));
+#    }
+#    p5_sv_refcnt_dec($av);
+#    @retvals;
+}
+
 multi method run($python, :$eval!) {
     my $res = py_eval($python, 0);
     self.py_to_p6($res);
@@ -73,6 +108,12 @@ multi method run($python, :$eval!) {
 multi method run($python, :$file) {
     my $res = py_eval($python, 1);
     self.py_to_p6($res);
+}
+
+method call(Str $package, Str $function, *@args) {
+    my $array = py_call_function($package, $function, |self!setup_arguments(@args));
+    return Any;
+    self!unpack_return_values($array);
 }
 
 method BUILD {
