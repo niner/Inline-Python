@@ -34,6 +34,9 @@ sub py_unicode_check(OpaquePointer)
 sub py_string_check(OpaquePointer)
     returns int32 { ... }
     native(&py_string_check);
+sub py_sequence_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_sequence_check);
 sub py_int_as_long(OpaquePointer)
     returns Int { ... }
     native(&py_int_as_long);
@@ -59,6 +62,24 @@ sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
 
+sub py_sequence_length(OpaquePointer)
+    returns int { ... }
+    native(&py_sequence_length);
+sub py_sequence_get_item(OpaquePointer, int)
+    returns OpaquePointer { ... }
+    native(&py_sequence_get_item);
+
+method py_array_to_array(OpaquePointer $py_array) {
+    my @array = [];
+    my $len = py_sequence_length($py_array);
+    for 0..^$len {
+        my $item = py_sequence_get_item($py_array, $_);
+        @array[$_] = self.py_to_p6($item);
+        #py_dec_ref($item)
+    }
+    return @array;
+}
+
 method py_to_p6(OpaquePointer $value) {
     if py_int_check($value) {
         return py_int_as_long($value);
@@ -76,6 +97,9 @@ method py_to_p6(OpaquePointer $value) {
         }
         return $buf;
 
+    }
+    elsif py_sequence_check($value) {
+        return self.py_array_to_array($value);
     }
     return Any;
 }

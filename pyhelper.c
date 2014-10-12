@@ -52,6 +52,10 @@ int py_string_check(PyObject *obj) {
     return PyString_Check(obj);
 }
 
+int py_sequence_check(PyObject *obj) {
+    return PySequence_Check(obj);
+}
+
 long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
 }
@@ -84,6 +88,14 @@ Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
     Py_DECREF(string);
     fprintf(stderr, "%i\n", length);
     return length;
+}
+
+int py_sequence_length(PyObject *obj) {
+    return PySequence_Length(obj);
+}
+
+PyObject *py_sequence_get_item(PyObject *obj, int item) {
+    return PySequence_GetItem(obj, item);
 }
 
 PyObject *py_tuple_new(int len) {

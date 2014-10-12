@@ -81,10 +81,10 @@ else {
 }
 my @retvals = $py.call('__main__', 'test_int_retvals');
 if (@retvals == 3 and @retvals[0] == 3 and @retvals[1] == 1 and @retvals[2] == 2) {
-    say "ok 5 - return one int";
+    say "ok 5 - return three ints";
 }
 else {
-    say "not ok 5 - return one int";
+    say "not ok 5 - return three ints";
     say "    got: {@retvals}";
     say "    expected: 3, 1, 2";
 }
