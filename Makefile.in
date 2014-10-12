@@ -1,0 +1,8 @@
+.PHONY: clean test
+all: %DESTDIR%/Inline/pyhelper%SO%
+clean:
+	rm %DESTDIR%/Inline/pyhelper%SO%
+%DESTDIR%/Inline/pyhelper.so: pyhelper.c
+	%CC% pyhelper.c -I"%INCLUDEPY%" -L"%LIBPLPY%" -l%LIBRARYPY% `perl -MExtUtils::Embed -e ccopts -e ldopts` -shared -o %DESTDIR%/Inline/pyhelper.so %CCSHARED% -g
+test: all
+	prove -e 'perl6 -Ilib' t

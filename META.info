@@ -1,0 +1,11 @@
+{
+    "name" : "Inline::Python",
+    "version" : "*",
+    "author" : "github:niner",
+    "description" : "Use Python code and libraries in a Perl 6 program",
+    "depends" : [ "NativeCall", "LibraryMake" ],
+    "provides" : {
+        "Inline::Python" : "lib/Inline/Python.pm6"
+    },
+    "source-url" : "git://github.com/niner/Inline-Python.git"
+}
