@@ -25,12 +25,26 @@ sub py_init_python()
 sub py_eval(Str, Int)
     returns OpaquePointer { ... }
     native(&py_eval);
+sub py_int_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_int_check);
+sub py_int_as_long(OpaquePointer)
+    returns Int { ... }
+    native(&py_int_as_long);
 
 method py_to_p6(OpaquePointer $value) {
+    if py_int_check($value) {
+        return py_int_as_long($value);
+    }
     return Any;
 }
 
-method run($python) {
+multi method run($python, :$eval!) {
+    my $res = py_eval($python, 0);
+    self.py_to_p6($res);
+}
+
+multi method run($python, :$file) {
     my $res = py_eval($python, 1);
     self.py_to_p6($res);
 }

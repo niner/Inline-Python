@@ -1,14 +1,12 @@
 #!/usr/bin/env perl6
 
 use v6;
+use Test;
 use Inline::Python;
 
-say '1..1';
+plan 1;
 
 my $py = Inline::Python.new();
-
-$py.run('
-print "ok 1 - basic eval\n";
-', :file);
+is $py.run('5', :eval), 5;
 
 # vim: ft=perl6

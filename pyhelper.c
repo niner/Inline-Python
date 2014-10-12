@@ -39,3 +39,11 @@ PyObject *py_eval(const char* p, int type) {
     }
     return py_result;
 }
+
+int py_int_check(PyObject *obj) {
+    return PyInt_Check(obj);
+}
+
+long py_int_as_long(PyObject *obj) {
+    return PyInt_AsLong(obj);
+}
