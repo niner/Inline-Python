@@ -44,6 +44,36 @@ int py_int_check(PyObject *obj) {
     return PyInt_Check(obj);
 }
 
+int py_unicode_check(PyObject *obj) {
+    return PyUnicode_Check(obj);
+}
+
+int py_string_check(PyObject *obj) {
+    return PyString_Check(obj);
+}
+
 long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
+}
+
+char *py_unicode_to_char_star(PyObject *obj) {
+    PyObject * const string = PyUnicode_AsUTF8String(obj);    /* new reference */
+    if (!string) {
+        return NULL;
+    }
+    char * const str = PyString_AsString(string);
+    Py_DECREF(string);
+    return str;
+}
+
+Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
+    PyObject * const string = PyObject_Str(obj);    /* new reference */
+    if (!string) {
+        return 0;
+    }
+    Py_ssize_t length;
+    PyString_AsStringAndSize(obj, buf, &length);
+    Py_DECREF(string);
+    fprintf(stderr, "%i\n", length);
+    return length;
 }
