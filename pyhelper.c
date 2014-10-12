@@ -56,6 +56,10 @@ long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
 }
 
+PyObject *py_int_to_py(long num) {
+    return PyInt_FromLong(num);
+}
+
 char *py_unicode_to_char_star(PyObject *obj) {
     PyObject * const string = PyUnicode_AsUTF8String(obj);    /* new reference */
     if (!string) {
@@ -78,7 +82,15 @@ Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
     return length;
 }
 
-PyObject *py_call_function(char *pkg, char *name, int len, PyObject *args[]) {
+PyObject *py_tuple_new(int len) {
+    return PyTuple_New(len);
+}
+
+void py_tuple_set_item(PyObject *tuple, int i, PyObject *item) {
+    PyTuple_SetItem(tuple, i, item);
+}
+
+PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     int i;
     PyObject * const mod       = PyImport_AddModule(pkg);
     PyObject * const dict      = PyModule_GetDict(mod);
@@ -87,11 +99,9 @@ PyObject *py_call_function(char *pkg, char *name, int len, PyObject *args[]) {
     PyObject *py_retval = NULL;
     PyObject *tuple     = NULL;
 
-    tuple = PyTuple_New(0);
-
-    py_retval = PyObject_CallObject(func, tuple);
+    py_retval = PyObject_CallObject(func, args);
     Py_DECREF(func);
-    Py_DECREF(tuple);
+    Py_DECREF(args);
 
     return py_retval;
 }

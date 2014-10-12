@@ -13,7 +13,7 @@ def test():
     return;
 
 def test_int_params(a, b):
-    if a == 2 and b == 2:
+    if a == 2 and b == 1:
         print "ok 2 - int params";
     else:
         print "not ok 2 - int params";

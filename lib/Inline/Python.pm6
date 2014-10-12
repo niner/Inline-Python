@@ -37,12 +37,21 @@ sub py_string_check(OpaquePointer)
 sub py_int_as_long(OpaquePointer)
     returns Int { ... }
     native(&py_int_as_long);
+sub py_int_to_py(Int)
+    returns OpaquePointer { ... }
+    native(&py_int_to_py);
 sub py_unicode_to_char_star(OpaquePointer)
     returns Str { ... }
     native(&py_unicode_to_char_star);
 sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
     returns Int { ... }
     native(&py_string_to_buf);
+sub py_tuple_new(Int)
+    returns OpaquePointer { ... }
+    native(&py_tuple_new);
+sub py_tuple_set_item(OpaquePointer, Int, OpaquePointer)
+    { ... }
+    native(&py_tuple_set_item);
 sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
@@ -68,14 +77,17 @@ method py_to_p6(OpaquePointer $value) {
     return Any;
 }
 
+multi method p6_to_py(Int:D $value) returns OpaquePointer {
+    py_int_to_py($value);
+}
+
 method !setup_arguments(@args) {
-#    my $len = @args.elems;
-#    my @svs := CArray[OpaquePointer].new();
-#    loop (my Int $i = 0; $i < $len; $i = $i + 1) {
-#        @svs[$i] = self.p6_to_py(@args[$i]);
-#    }
-#    return $len, @svs;
-    return 0;
+    my $len = @args.elems;
+    my $tuple = py_tuple_new($len);
+    loop (my Int $i = 0; $i < $len; $i = $i + 1) {
+        py_tuple_set_item($tuple, $i, self.p6_to_py(@args[$i]));
+    }
+    return $tuple;
 }
 
 method !unpack_return_values($av) {
@@ -111,7 +123,7 @@ multi method run($python, :$file) {
 }
 
 method call(Str $package, Str $function, *@args) {
-    my $array = py_call_function($package, $function, |self!setup_arguments(@args));
+    my $array = py_call_function($package, $function, self!setup_arguments(@args));
     return Any;
     self!unpack_return_values($array);
 }
