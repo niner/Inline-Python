@@ -46,6 +46,9 @@ sub py_unicode_to_char_star(OpaquePointer)
 sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
     returns Int { ... }
     native(&py_string_to_buf);
+sub py_str_to_py(Int, Str)
+    returns OpaquePointer { ... }
+    native(&py_str_to_py);
 sub py_tuple_new(Int)
     returns OpaquePointer { ... }
     native(&py_tuple_new);
@@ -79,6 +82,10 @@ method py_to_p6(OpaquePointer $value) {
 
 multi method p6_to_py(Int:D $value) returns OpaquePointer {
     py_int_to_py($value);
+}
+
+multi method p6_to_py(Str:D $value) returns OpaquePointer {
+    py_str_to_py($value.encode('UTF-8').bytes, $value);
 }
 
 method !setup_arguments(@args) {

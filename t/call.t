@@ -72,7 +72,7 @@ class Foo:
 
 $py.call('__main__', 'test');
 $py.call('__main__', 'test_int_params', 2, 1);
-$py.call('__main__', 'test_str_params', 'Hello', 'Perl 5');
+$py.call('__main__', 'test_str_params', 'Hello', 'Python');
 if ($py.call('__main__', 'test_int_retval') == 1) {
     say "ok 4 - return one int";
 }
