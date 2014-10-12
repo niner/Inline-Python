@@ -33,10 +33,10 @@ def test_int_retvals():
     return 3, 1, 2;
 
 def test_str_retval():
-    return "Hello Perl 6!";
+    return u"Hello Perl 6!";
 
 def test_mixed_retvals():
-    return ("Hello", "Perl", 6);
+    return (u"Hello", u"Perl", 6);
 
 def test_none(undef):
     return undef is None;

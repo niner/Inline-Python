@@ -130,9 +130,7 @@ multi method run($python, :$file) {
 }
 
 method call(Str $package, Str $function, *@args) {
-    my $array = py_call_function($package, $function, self!setup_arguments(@args));
-    return Any;
-    self!unpack_return_values($array);
+    return self.py_to_p6(py_call_function($package, $function, self!setup_arguments(@args)));
 }
 
 method BUILD {
