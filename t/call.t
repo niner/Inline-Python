@@ -104,18 +104,18 @@ else {
     say "    expected: 'Hello', 'Perl', 6";
 }
 
-if ($py.call('__main__', 'Foo::new', 'Foo', 1).test() == 1) {
-    say "ok 8 - Perl 5 method call";
+if ($py.call('__main__', 'Foo', 1).test() == 1) {
+    say "ok 8 - Python method call";
 }
 else {
-    say "not ok 8 - Perl 5 method call";
+    say "not ok 8 - Python method call";
 }
 
-if ($py.call('__main__', 'Foo::new', 'Foo', 1).sum(3, 1) == 4) {
-    say "ok 9 - Perl 5 method call with parameters";
+if ($py.call('__main__', 'Foo', 1).sum(3, 1) == 4) {
+    say "ok 9 - Python method call with parameters";
 }
 else {
-    say "not ok 9 - Perl 5 method call with parameters";
+    say "not ok 9 - Python method call with parameters";
 }
 
 if ($py.call('__main__', 'test_none', Any) == 1) {
@@ -126,17 +126,17 @@ else {
 }
 
 if ($py.call('__main__', 'test_hash', {a => 2, b => {c => [4, 3]}}) == 1) {
-    say "ok 11 - Passing hashes to Perl 5";
+    say "ok 11 - Passing hashes to Python";
 }
 else {
-    say "not ok 11 - Passing hashes to Perl 5";
+    say "not ok 11 - Passing hashes to Python";
 }
 
 if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
-    say "ok 12 - Passing Perl 5 objects back from Perl 6";
+    say "ok 12 - Passing Python objects back from Perl 6";
 }
 else {
-    say "not ok 12 - Passing Perl 5 objects back from Perl 6";
+    say "not ok 12 - Passing Python objects back from Perl 6";
 }
 
 # vim: ft=perl6

@@ -106,6 +106,10 @@ void py_tuple_set_item(PyObject *tuple, int i, PyObject *item) {
     PyTuple_SetItem(tuple, i, item);
 }
 
+void py_dec_ref(PyObject *obj) {
+    Py_DECREF(obj);
+}
+
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     int i;
     PyObject * const mod       = PyImport_AddModule(pkg);

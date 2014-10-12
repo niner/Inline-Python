@@ -61,13 +61,15 @@ sub py_tuple_set_item(OpaquePointer, Int, OpaquePointer)
 sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
-
 sub py_sequence_length(OpaquePointer)
     returns int { ... }
     native(&py_sequence_length);
 sub py_sequence_get_item(OpaquePointer, int)
     returns OpaquePointer { ... }
     native(&py_sequence_get_item);
+sub py_dec_ref(OpaquePointer)
+    { ... }
+    native(&py_dec_ref);
 
 method py_array_to_array(OpaquePointer $py_array) {
     my @array = [];
@@ -75,7 +77,7 @@ method py_array_to_array(OpaquePointer $py_array) {
     for 0..^$len {
         my $item = py_sequence_get_item($py_array, $_);
         @array[$_] = self.py_to_p6($item);
-        #py_dec_ref($item)
+        py_dec_ref($item);
     }
     return @array;
 }
