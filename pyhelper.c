@@ -56,6 +56,10 @@ int py_sequence_check(PyObject *obj) {
     return PySequence_Check(obj);
 }
 
+int py_mapping_check(PyObject *obj) {
+    return PyMapping_Check(obj);
+}
+
 long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
 }
@@ -95,6 +99,10 @@ int py_sequence_length(PyObject *obj) {
 
 PyObject *py_sequence_get_item(PyObject *obj, int item) {
     return PySequence_GetItem(obj, item);
+}
+
+PyObject *py_mapping_items(PyObject *obj) {
+    return PyMapping_Items(obj);
 }
 
 PyObject *py_tuple_new(int len) {

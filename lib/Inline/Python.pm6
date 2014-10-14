@@ -37,6 +37,9 @@ sub py_string_check(OpaquePointer)
 sub py_sequence_check(OpaquePointer)
     returns int32 { ... }
     native(&py_sequence_check);
+sub py_mapping_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_mapping_check);
 sub py_int_as_long(OpaquePointer)
     returns Int { ... }
     native(&py_int_as_long);
@@ -67,6 +70,9 @@ sub py_sequence_length(OpaquePointer)
 sub py_sequence_get_item(OpaquePointer, int)
     returns OpaquePointer { ... }
     native(&py_sequence_get_item);
+sub py_mapping_items(OpaquePointer)
+    returns OpaquePointer { ... }
+    native(&py_mapping_items);
 sub py_dec_ref(OpaquePointer)
     { ... }
     native(&py_dec_ref);
@@ -80,6 +86,15 @@ method py_array_to_array(OpaquePointer $py_array) {
         py_dec_ref($item);
     }
     return @array;
+}
+
+method py_dict_to_hash(OpaquePointer $py_dict) {
+    my %hash;
+    my $items = py_mapping_items($py_dict);
+    my @items = self.py_to_p6($items);
+    py_dec_ref($items);
+    %hash{$_[0]} = $_[1] for @items;
+    return %hash;
 }
 
 method py_to_p6(OpaquePointer $value) {
@@ -102,6 +117,9 @@ method py_to_p6(OpaquePointer $value) {
     }
     elsif py_sequence_check($value) {
         return self.py_array_to_array($value);
+    }
+    elsif py_mapping_check($value) {
+        return self.py_dict_to_hash($value);
     }
     return Any;
 }
