@@ -86,7 +86,6 @@ Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
     Py_ssize_t length;
     PyString_AsStringAndSize(obj, buf, &length);
     Py_DECREF(string);
-    fprintf(stderr, "%i\n", length);
     return length;
 }
 

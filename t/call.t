@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..12";
+say "1..7";
 
 my $py = Inline::Python.new();
 say $py.run('
@@ -73,6 +73,12 @@ class Foo:
 $py.call('__main__', 'test');
 $py.call('__main__', 'test_int_params', 2, 1);
 $py.call('__main__', 'test_str_params', 'Hello', 'Python');
+
+$py.run('
+import sys
+sys.stdout.flush()
+');
+
 if ($py.call('__main__', 'test_int_retval') == 1) {
     say "ok 4 - return one int";
 }
@@ -104,6 +110,7 @@ else {
     say "    expected: 'Hello', 'Perl', 6";
 }
 
+if (False) {
 if ($py.call('__main__', 'Foo', 1).test() == 1) {
     say "ok 8 - Python method call";
 }
@@ -137,6 +144,7 @@ if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
 }
 else {
     say "not ok 12 - Passing Python objects back from Perl 6";
+}
 }
 
 # vim: ft=perl6
