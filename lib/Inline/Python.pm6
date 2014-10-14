@@ -159,28 +159,6 @@ method !setup_arguments(@args) {
     return $tuple;
 }
 
-method !unpack_return_values($av) {
-#    my $av_len = py_av_top_index($av);
-#
-#    if $av_len == -1 {
-#        p5_sv_refcnt_dec($av);
-#        return;
-#    }
-#
-#    if $av_len == 0 {
-#        my $retval = self.p5_to_p6(p5_av_fetch($av, 0));
-#        p5_sv_refcnt_dec($av);
-#        return $retval;
-#    }
-#
-#    my @retvals;
-#    loop (my int32 $i = 0; $i <= $av_len; $i = $i + 1) {
-#        @retvals.push(self.p5_to_p6(p5_av_fetch($av, $i)));
-#    }
-#    p5_sv_refcnt_dec($av);
-#    @retvals;
-}
-
 multi method run($python, :$eval!) {
     my $res = py_eval($python, 0);
     self.py_to_p6($res);
