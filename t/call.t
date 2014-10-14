@@ -3,10 +3,10 @@
 use v6;
 use Inline::Python;
 
-say "1..7";
+say "1..9";
 
 my $py = Inline::Python.new();
-say $py.run('
+$py.run('
 
 def test():
     print "ok 1 - executing a parameterless function without return value";
@@ -66,7 +66,7 @@ class Foo:
     def test(self):
         return self.val
 
-    def sum(a, b):
+    def sum(self, a, b):
         return a + b
 ');
 
@@ -110,7 +110,6 @@ else {
     say "    expected: 'Hello', 'Perl', 6";
 }
 
-if (False) {
 if ($py.call('__main__', 'Foo', 1).test() == 1) {
     say "ok 8 - Python method call";
 }
@@ -125,6 +124,7 @@ else {
     say "not ok 9 - Python method call with parameters";
 }
 
+if False {
 if ($py.call('__main__', 'test_none', Any) == 1) {
     say "ok 10 - Any converted to undef";
 }

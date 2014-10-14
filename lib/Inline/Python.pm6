@@ -19,12 +19,17 @@ sub native(Sub $sub) {
     trait_mod:<is>($sub, :native($path));
 }
 
+class PythonObject { ... }
+
 sub py_init_python()
     { ... }
     native(&py_init_python);
 sub py_eval(Str, Int)
     returns OpaquePointer { ... }
     native(&py_eval);
+sub py_instance_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_instance_check);
 sub py_int_check(OpaquePointer)
     returns int32 { ... }
     native(&py_int_check);
@@ -88,6 +93,9 @@ sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
 sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
+sub py_call_method(OpaquePointer, Str, int, CArray[OpaquePointer])
+    returns OpaquePointer { ... }
+    native(&py_call_method);
 sub py_sequence_length(OpaquePointer)
     returns int { ... }
     native(&py_sequence_length);
@@ -103,6 +111,9 @@ sub py_none()
 sub py_dec_ref(OpaquePointer)
     { ... }
     native(&py_dec_ref);
+sub py_inc_ref(OpaquePointer)
+    { ... }
+    native(&py_inc_ref);
 
 method py_array_to_array(OpaquePointer $py_array) {
     my @array = [];
@@ -125,7 +136,12 @@ method py_dict_to_hash(OpaquePointer $py_dict) {
 }
 
 method py_to_p6(OpaquePointer $value) {
-    if py_int_check($value) {
+    return Any unless defined $value;
+    if py_instance_check($value) {
+        py_inc_ref($value);
+        return PythonObject.new(python => self, ptr => $value);
+    }
+    elsif py_int_check($value) {
         return py_int_as_long($value);
     }
     elsif py_float_check($value) {
@@ -198,6 +214,10 @@ multi method p6_to_py(Any:U $value) returns OpaquePointer {
     py_none();
 }
 
+multi method p6_to_py(Any:D $value) returns OpaquePointer {
+    die $value.perl ~ ' not yet implemented';
+}
+
 method !setup_arguments(@args) {
     my $len = @args.elems;
     my $tuple = py_tuple_new($len);
@@ -218,9 +238,43 @@ multi method run($python, :$file) {
 }
 
 method call(Str $package, Str $function, *@args) {
-    return self.py_to_p6(py_call_function($package, $function, self!setup_arguments(@args)));
+    my $py_retval = py_call_function($package, $function, self!setup_arguments(@args));
+    return unless defined $py_retval;
+    my \retval = self.py_to_p6($py_retval);
+    py_dec_ref($py_retval);
+    return retval;
+}
+
+method invoke(OpaquePointer $obj, Str $method, *@args) {
+    my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
+    return unless defined $py_retval;
+    my \retval = self.py_to_p6($py_retval);
+    py_dec_ref($py_retval);
+    return retval;
 }
 
 method BUILD {
     py_init_python();
+}
+
+class PythonObject {
+    has OpaquePointer $.ptr;
+    has Inline::Python $.python;
+
+    method sink() { self }
+
+    method DESTROY {
+        $!python.py_dec_ref($!ptr) if $!ptr;
+        $!ptr = OpaquePointer;
+    }
+}
+
+BEGIN {
+    PythonObject.^add_fallback(-> $, $ { True },
+        method ($name ) {
+            -> \self, |args {
+                $.python.invoke($.ptr, $name, args.list);
+            }
+        }
+    );
 }

@@ -40,6 +40,10 @@ PyObject *py_eval(const char* p, int type) {
     return py_result;
 }
 
+int py_instance_check(PyObject *obj) {
+    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj));
+}
+
 int py_int_check(PyObject *obj) {
     return PyInt_Check(obj);
 }
@@ -154,17 +158,28 @@ void py_dec_ref(PyObject *obj) {
     Py_DECREF(obj);
 }
 
+void py_inc_ref(PyObject *obj) {
+    Py_INCREF(obj);
+}
+
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     int i;
     PyObject * const mod       = PyImport_AddModule(pkg);
     PyObject * const dict      = PyModule_GetDict(mod);
     PyObject * const func      = PyMapping_GetItemString(dict, name);
-    PyObject *o         = NULL;
     PyObject *py_retval = NULL;
-    PyObject *tuple     = NULL;
 
     py_retval = PyObject_CallObject(func, args);
     Py_DECREF(func);
+    Py_DECREF(args);
+
+    return py_retval;
+}
+
+PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
+    PyObject *method = PyObject_GetAttrString(obj, name);
+    PyObject *py_retval = PyObject_CallObject(method, args);
+    Py_DECREF(method);
     Py_DECREF(args);
 
     return py_retval;
