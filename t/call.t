@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..10";
+say "1..11";
 
 my $py = Inline::Python.new();
 $py.run('
@@ -50,7 +50,7 @@ def test_hash(h):
         and "b" in h
         and h["a"] == 2
         and isinstance(h["b"], types.DictType)
-        and isinstance(h["b"]["c"], types.ArrayType)
+        and isinstance(h["b"]["c"], list)
         and len(h["b"]["c"]) == 2
         and h["b"]["c"][0] == 4
         and h["b"]["c"][1] == 3
@@ -131,7 +131,6 @@ else {
     say "not ok 10 - Any converted to undef";
 }
 
-if False {
 if ($py.call('__main__', 'test_hash', {a => 2, b => {c => [4, 3]}}) == 1) {
     say "ok 11 - Passing hashes to Python";
 }
@@ -139,6 +138,7 @@ else {
     say "not ok 11 - Passing hashes to Python";
 }
 
+if False {
 if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
     say "ok 12 - Passing Python objects back from Perl 6";
 }
