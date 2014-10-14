@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..11";
+say "1..12";
 
 my $py = Inline::Python.new();
 $py.run('
@@ -138,13 +138,11 @@ else {
     say "not ok 11 - Passing hashes to Python";
 }
 
-if False {
 if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
     say "ok 12 - Passing Python objects back from Perl 6";
 }
 else {
     say "not ok 12 - Passing Python objects back from Perl 6";
-}
 }
 
 # vim: ft=perl6

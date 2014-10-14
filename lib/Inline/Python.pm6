@@ -216,6 +216,10 @@ multi method p6_to_py(Hash:D $value) returns OpaquePointer {
     return $dict;
 }
 
+multi method p6_to_py(PythonObject:D $value) {
+    $value.ptr;
+}
+
 multi method p6_to_py(Any:U $value) returns OpaquePointer {
     py_none();
 }
