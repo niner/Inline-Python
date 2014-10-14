@@ -145,6 +145,11 @@ void py_dict_set_item(PyObject *dict, PyObject *key, PyObject *item) {
     PyDict_SetItem(dict, key, item);
 }
 
+PyObject *py_none() {
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 void py_dec_ref(PyObject *obj) {
     Py_DECREF(obj);
 }

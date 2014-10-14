@@ -97,6 +97,9 @@ sub py_sequence_get_item(OpaquePointer, int)
 sub py_mapping_items(OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_mapping_items);
+sub py_none()
+    returns OpaquePointer { ... }
+    native(&py_none);
 sub py_dec_ref(OpaquePointer)
     { ... }
     native(&py_dec_ref);
@@ -189,6 +192,10 @@ multi method p6_to_py(Hash:D $value) returns OpaquePointer {
         py_dict_set_item($dict, self.p6_to_py($item.key), self.p6_to_py($item.value));
     }
     return $dict;
+}
+
+multi method p6_to_py(Any:U $value) returns OpaquePointer {
+    py_none();
 }
 
 method !setup_arguments(@args) {

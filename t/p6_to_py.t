@@ -4,7 +4,7 @@ use v6;
 use Test;
 use Inline::Python;
 
-plan 10;
+plan 11;
 
 my $py = Inline::Python.new();
 $py.run(q[
@@ -14,8 +14,8 @@ def identity(a):
 
 class Foo {
 }
-# , Any, Foo.new
-for ('abcö', Buf.new('äbc'.encode('latin-1')), 24, 2.4.Num, [1, 2], { a => 1, b => 2}) -> $obj {
+# , Foo.new
+for ('abcö', Buf.new('äbc'.encode('latin-1')), 24, 2.4.Num, [1, 2], { a => 1, b => 2}, Any) -> $obj {
     is_deeply $py.call('__main__', 'identity', $obj), $obj, "Can round-trip " ~ $obj.^name;
 }
 
