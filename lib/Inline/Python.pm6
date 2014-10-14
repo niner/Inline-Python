@@ -73,6 +73,12 @@ sub py_tuple_new(Int)
 sub py_tuple_set_item(OpaquePointer, Int, OpaquePointer)
     { ... }
     native(&py_tuple_set_item);
+sub py_list_new(Int)
+    returns OpaquePointer { ... }
+    native(&py_list_new);
+sub py_list_set_item(OpaquePointer, Int, OpaquePointer)
+    { ... }
+    native(&py_list_set_item);
 sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
@@ -161,6 +167,14 @@ multi method p6_to_py(blob8:D $value) returns OpaquePointer {
         $array[$_] = $value[$_];
     }
     py_buf_to_py($value.elems, $array);
+}
+
+multi method p6_to_py(Positional:D $value) returns OpaquePointer {
+    my $array = py_list_new($value.elems);
+    for @$value.kv -> $i, $item {
+        py_list_set_item($array, $i, self.p6_to_py($item));
+    }
+    return $array;
 }
 
 method !setup_arguments(@args) {

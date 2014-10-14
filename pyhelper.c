@@ -129,6 +129,14 @@ void py_tuple_set_item(PyObject *tuple, int i, PyObject *item) {
     PyTuple_SetItem(tuple, i, item);
 }
 
+PyObject *py_list_new(int len) {
+    return PyList_New(len);
+}
+
+void py_list_set_item(PyObject *list, int i, PyObject *item) {
+    PyList_SetItem(list, i, item);
+}
+
 void py_dec_ref(PyObject *obj) {
     Py_DECREF(obj);
 }
