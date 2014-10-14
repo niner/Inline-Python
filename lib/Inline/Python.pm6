@@ -46,6 +46,9 @@ sub py_int_as_long(OpaquePointer)
 sub py_int_to_py(Int)
     returns OpaquePointer { ... }
     native(&py_int_to_py);
+sub py_float_to_py(num64)
+    returns OpaquePointer { ... }
+    native(&py_float_to_py);
 sub py_unicode_to_char_star(OpaquePointer)
     returns Str { ... }
     native(&py_unicode_to_char_star);
@@ -129,6 +132,10 @@ method py_to_p6(OpaquePointer $value) {
 
 multi method p6_to_py(Int:D $value) returns OpaquePointer {
     py_int_to_py($value);
+}
+
+multi method p6_to_py(Rat:D $value) returns OpaquePointer {
+    py_float_to_py($value.Num);
 }
 
 multi method p6_to_py(Str:D $value) returns OpaquePointer {

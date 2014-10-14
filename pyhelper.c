@@ -68,6 +68,10 @@ PyObject *py_int_to_py(long num) {
     return PyInt_FromLong(num);
 }
 
+PyObject *py_float_to_py(double num) {
+    return PyFloat_FromDouble(num);
+}
+
 PyObject *py_str_to_py(int len, char *str) {
     return PyUnicode_DecodeUTF8(str, len, "replace");
 }

@@ -4,7 +4,7 @@ use v6;
 use Test;
 use Inline::Python;
 
-plan 4;
+plan 6;
 
 my $py = Inline::Python.new();
 $py.run(q[
@@ -14,8 +14,8 @@ def identity(a):
 
 class Foo {
 }
-# , 24, 2.4.Num, [1, 2], { a => 1, b => 2}, Any, Foo.new
-for ('abcö', Buf.new('äbc'.encode('latin-1'))) -> $obj {
+# , 2.4.Num, [1, 2], { a => 1, b => 2}, Any, Foo.new
+for ('abcö', Buf.new('äbc'.encode('latin-1')), 24) -> $obj {
     is_deeply $py.call('__main__', 'identity', $obj), $obj, "Can round-trip " ~ $obj.^name;
 }
 
@@ -40,6 +40,7 @@ def is_two_point_five(a):
     return a == 2.5;
 /);
 
+ok($py.call('__main__', 'is_two_point_five', 2.5));
 #ok($py.call('__main__', 'is_two_point_five', Num.new(2.5)));
 
 # vim: ft=perl6
