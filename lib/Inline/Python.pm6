@@ -143,6 +143,10 @@ multi method p6_to_py(Int:D $value) returns OpaquePointer {
     py_int_to_py($value);
 }
 
+multi method p6_to_py(Num:D $value) returns OpaquePointer {
+    py_float_to_py($value);
+}
+
 multi method p6_to_py(Rat:D $value) returns OpaquePointer {
     py_float_to_py($value.Num);
 }
