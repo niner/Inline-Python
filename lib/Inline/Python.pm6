@@ -55,6 +55,9 @@ sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
 sub py_str_to_py(Int, Str)
     returns OpaquePointer { ... }
     native(&py_str_to_py);
+sub py_buf_to_py(Int, CArray[uint8])
+    returns OpaquePointer { ... }
+    native(&py_buf_to_py);
 sub py_tuple_new(Int)
     returns OpaquePointer { ... }
     native(&py_tuple_new);
@@ -130,6 +133,14 @@ multi method p6_to_py(Int:D $value) returns OpaquePointer {
 
 multi method p6_to_py(Str:D $value) returns OpaquePointer {
     py_str_to_py($value.encode('UTF-8').bytes, $value);
+}
+
+multi method p6_to_py(blob8:D $value) returns OpaquePointer {
+    my $array = CArray[uint8].new();
+    for ^$value.elems {
+        $array[$_] = $value[$_];
+    }
+    py_buf_to_py($value.elems, $array);
 }
 
 method !setup_arguments(@args) {
