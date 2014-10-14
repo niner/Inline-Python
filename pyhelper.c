@@ -137,6 +137,14 @@ void py_list_set_item(PyObject *list, int i, PyObject *item) {
     PyList_SetItem(list, i, item);
 }
 
+PyObject *py_dict_new() {
+    return PyDict_New();
+}
+
+void py_dict_set_item(PyObject *dict, PyObject *key, PyObject *item) {
+    PyDict_SetItem(dict, key, item);
+}
+
 void py_dec_ref(PyObject *obj) {
     Py_DECREF(obj);
 }

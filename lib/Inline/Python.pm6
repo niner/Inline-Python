@@ -79,6 +79,12 @@ sub py_list_new(Int)
 sub py_list_set_item(OpaquePointer, Int, OpaquePointer)
     { ... }
     native(&py_list_set_item);
+sub py_dict_new()
+    returns OpaquePointer { ... }
+    native(&py_dict_new);
+sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
+    { ... }
+    native(&py_dict_set_item);
 sub py_call_function(Str, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_function);
@@ -175,6 +181,14 @@ multi method p6_to_py(Positional:D $value) returns OpaquePointer {
         py_list_set_item($array, $i, self.p6_to_py($item));
     }
     return $array;
+}
+
+multi method p6_to_py(Hash:D $value) returns OpaquePointer {
+    my $dict = py_dict_new();
+    for %$value -> $item {
+        py_dict_set_item($dict, self.p6_to_py($item.key), self.p6_to_py($item.value));
+    }
+    return $dict;
 }
 
 method !setup_arguments(@args) {
