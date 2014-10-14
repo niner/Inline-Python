@@ -22,7 +22,10 @@ is $py.run('
 u"Püthon"
 ', :eval), 'Püthon';
 
-#is $py.run('u"Püthon".encode("latin-1")').decode('latin-1'), 'Püthon';
+is $py.run('
+# coding=utf-8
+u"Püthon".encode("latin-1")
+', :eval).decode('latin-1'), 'Püthon';
 
 done;
 
