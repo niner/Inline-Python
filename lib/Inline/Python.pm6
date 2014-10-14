@@ -28,6 +28,9 @@ sub py_eval(Str, Int)
 sub py_int_check(OpaquePointer)
     returns int32 { ... }
     native(&py_int_check);
+sub py_float_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_float_check);
 sub py_unicode_check(OpaquePointer)
     returns int32 { ... }
     native(&py_unicode_check);
@@ -46,6 +49,9 @@ sub py_int_as_long(OpaquePointer)
 sub py_int_to_py(Int)
     returns OpaquePointer { ... }
     native(&py_int_to_py);
+sub py_float_as_double(OpaquePointer)
+    returns num64 { ... }
+    native(&py_float_as_double);
 sub py_float_to_py(num64)
     returns OpaquePointer { ... }
     native(&py_float_to_py);
@@ -106,6 +112,9 @@ method py_dict_to_hash(OpaquePointer $py_dict) {
 method py_to_p6(OpaquePointer $value) {
     if py_int_check($value) {
         return py_int_as_long($value);
+    }
+    elsif py_float_check($value) {
+        return py_float_as_double($value);
     }
     elsif py_unicode_check($value) {
         return py_unicode_to_char_star($value);

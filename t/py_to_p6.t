@@ -7,7 +7,6 @@ use Inline::Python;
 my $py = Inline::Python.new();
 
 is $py.run('5', :eval), 5;
-todo 'NYI';
 is $py.run('5.5', :eval), 5.5;
 is $py.run('u"Python"', :eval), 'Python';
 is_deeply $py.run('[1, 2]', :eval), [1, 2];

@@ -44,6 +44,10 @@ int py_int_check(PyObject *obj) {
     return PyInt_Check(obj);
 }
 
+int py_float_check(PyObject *obj) {
+    return PyFloat_Check(obj);
+}
+
 int py_unicode_check(PyObject *obj) {
     return PyUnicode_Check(obj);
 }
@@ -62,6 +66,10 @@ int py_mapping_check(PyObject *obj) {
 
 long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
+}
+
+double py_float_as_double(PyObject *obj) {
+    return PyFloat_AsDouble(obj);
 }
 
 PyObject *py_int_to_py(long num) {
