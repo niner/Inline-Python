@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..9";
+say "1..10";
 
 my $py = Inline::Python.new();
 $py.run('
@@ -124,7 +124,6 @@ else {
     say "not ok 9 - Python method call with parameters";
 }
 
-if False {
 if ($py.call('__main__', 'test_none', Any) == 1) {
     say "ok 10 - Any converted to undef";
 }
@@ -132,6 +131,7 @@ else {
     say "not ok 10 - Any converted to undef";
 }
 
+if False {
 if ($py.call('__main__', 'test_hash', {a => 2, b => {c => [4, 3]}}) == 1) {
     say "ok 11 - Passing hashes to Python";
 }

@@ -48,6 +48,9 @@ sub py_sequence_check(OpaquePointer)
 sub py_mapping_check(OpaquePointer)
     returns int32 { ... }
     native(&py_mapping_check);
+sub py_is_none(OpaquePointer)
+    returns int32 { ... }
+    native(&py_is_none);
 sub py_int_as_long(OpaquePointer)
     returns Int { ... }
     native(&py_int_as_long);
@@ -137,7 +140,10 @@ method py_dict_to_hash(OpaquePointer $py_dict) {
 
 method py_to_p6(OpaquePointer $value) {
     return Any unless defined $value;
-    if py_instance_check($value) {
+    if py_is_none($value) {
+        return Any;
+    }
+    elsif py_instance_check($value) {
         py_inc_ref($value);
         return PythonObject.new(python => self, ptr => $value);
     }

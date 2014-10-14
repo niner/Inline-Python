@@ -68,6 +68,10 @@ int py_mapping_check(PyObject *obj) {
     return PyMapping_Check(obj);
 }
 
+int py_is_none(PyObject *obj) {
+    return obj == Py_None;
+}
+
 long py_int_as_long(PyObject *obj) {
     return PyInt_AsLong(obj);
 }
