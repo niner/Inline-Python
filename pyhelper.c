@@ -44,6 +44,10 @@ int py_instance_check(PyObject *obj) {
     return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj));
 }
 
+int py_is_instance(PyObject *obj, PyObject *class) {
+    return PyObject_IsInstance(obj, class);
+}
+
 int py_int_check(PyObject *obj) {
     return PyInt_Check(obj);
 }

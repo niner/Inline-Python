@@ -21,6 +21,33 @@ sub native(Sub $sub) {
 
 class PythonObject { ... }
 
+class ObjectKeeper {
+    has @!objects;
+    has $!last_free = -1;
+
+    method keep(Any:D $value) returns Int {
+        if $!last_free != -1 {
+            my $index = $!last_free;
+            $!last_free = @!objects[$!last_free];
+            @!objects[$index] = $value;
+            return $index;
+        }
+        else {
+            @!objects.push($value);
+            return @!objects.end;
+        }
+    }
+
+    method get(Int $index) returns Any:D {
+        @!objects[$index];
+    }
+
+    method free(Int $index) {
+        @!objects[$index] = $!last_free;
+        $!last_free = $index;
+    }
+}
+
 sub py_init_python()
     { ... }
     native(&py_init_python);
@@ -30,6 +57,9 @@ sub py_eval(Str, Int)
 sub py_instance_check(OpaquePointer)
     returns int32 { ... }
     native(&py_instance_check);
+sub py_is_instance(OpaquePointer, OpaquePointer)
+    returns int32 { ... }
+    native(&py_is_instance);
 sub py_int_check(OpaquePointer)
     returns int32 { ... }
     native(&py_int_check);
@@ -118,6 +148,12 @@ sub py_inc_ref(OpaquePointer)
     { ... }
     native(&py_inc_ref);
 
+my $objects = ObjectKeeper.new;
+
+sub free_p6_object(Int $index) {
+    $objects.free($index);
+}
+
 method py_array_to_array(OpaquePointer $py_array) {
     my @array = [];
     my $len = py_sequence_length($py_array);
@@ -138,14 +174,29 @@ method py_dict_to_hash(OpaquePointer $py_dict) {
     return %hash;
 }
 
+my OpaquePointer $perl6object;
+
 method py_to_p6(OpaquePointer $value) {
     return Any unless defined $value;
     if py_is_none($value) {
         return Any;
     }
     elsif py_instance_check($value) {
-        py_inc_ref($value);
-        return PythonObject.new(python => self, ptr => $value);
+        if py_is_instance($value, $perl6object) {
+            return $objects.get(
+                py_int_as_long(
+                    py_call_method(
+                        $value,
+                        'get_perl6_object',
+                        self!setup_arguments([])
+                    )
+                )
+            );
+        }
+        else {
+            py_inc_ref($value);
+            return PythonObject.new(python => self, ptr => $value);
+        }
     }
     elsif py_int_check($value) {
         return py_int_as_long($value);
@@ -224,8 +275,10 @@ multi method p6_to_py(Any:U $value) returns OpaquePointer {
     py_none();
 }
 
-multi method p6_to_py(Any:D $value) returns OpaquePointer {
-    die $value.perl ~ ' not yet implemented';
+multi method p6_to_py(Any:D $value, OpaquePointer $inst = OpaquePointer) {
+    my $index = $objects.keep($value);
+
+    return py_call_function('__main__', 'Perl6Object', self!setup_arguments([$index]));
 }
 
 method !setup_arguments(@args) {
@@ -265,6 +318,16 @@ method invoke(OpaquePointer $obj, Str $method, *@args) {
 
 method BUILD {
     py_init_python();
+
+    self.run(q:heredoc/PYTHON/);
+class Perl6Object:
+    def __init__(self, index):
+        self.index = index
+    def get_perl6_object(self):
+        return self.index
+PYTHON
+
+    $perl6object = py_eval('Perl6Object', 0);
 }
 
 class PythonObject {
