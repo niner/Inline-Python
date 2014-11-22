@@ -1,5 +1,7 @@
 class Inline::Python;
 
+has &!call_method;
+
 use NativeCall;
 
 sub native(Sub $sub) {
@@ -48,7 +50,7 @@ class ObjectKeeper {
     }
 }
 
-sub py_init_python()
+sub py_init_python(&call_method(Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
     { ... }
     native(&py_init_python);
 sub py_eval(Str, Int)
@@ -317,14 +319,29 @@ method invoke(OpaquePointer $obj, Str $method, *@args) {
 }
 
 method BUILD {
-    py_init_python();
+    &!call_method = sub (Int $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+        my $p6obj = $objects.get($index);
+        my @retvals = $p6obj."$name"(|self.py_array_to_array($args));
+        return self.p6_to_py(@retvals);
+        CATCH {
+            default {
+                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_p5($_);
+                return OpaquePointer;
+            }
+        }
+    }
+
+    py_init_python(&!call_method);
 
     self.run(q:heredoc/PYTHON/);
+import perl6
 class Perl6Object:
     def __init__(self, index):
         self.index = index
     def get_perl6_object(self):
         return self.index
+    def __getattr__(self, attr):
+        return lambda *args: perl6.invoke(self.index, attr, args)
 PYTHON
 
     $perl6object = py_eval('Perl6Object', 0);

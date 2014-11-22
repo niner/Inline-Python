@@ -1,14 +1,23 @@
 #include "Python.h"
 
-void *py_init_python() {
+void initperl6(void);
+
+PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
+
+void py_init_python(PyObject *(*call_method)(int, char * , PyObject *, PyObject **)) {
     /* sometimes Python needs to know about argc and argv to be happy */
     int _python_argc = 1;
     char *_python_argv[] = {
         "python",
     };
 
+    call_p6_method = call_method;
+
     Py_SetProgramName("python");
     Py_Initialize();
+
+    initperl6();
+
     PySys_SetArgv(_python_argc, _python_argv);  /* Tk needs this */
 }
 
@@ -171,7 +180,6 @@ void py_inc_ref(PyObject *obj) {
 }
 
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
-    int i;
     PyObject * const mod       = PyImport_AddModule(pkg);
     PyObject * const dict      = PyModule_GetDict(mod);
     PyObject * const func      = PyMapping_GetItemString(dict, name);
@@ -191,4 +199,48 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     Py_DECREF(args);
 
     return py_retval;
+}
+
+static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
+    PyObject * const index  = PySequence_GetItem(args, 0);
+    PyObject * const name   = PySequence_GetItem(args, 1);
+    PyObject * const params = PySequence_GetItem(args, 2);
+
+    Py_ssize_t length;
+    char * buf;
+    PyString_AsStringAndSize(name, &buf, &length);
+    char * const name_str = calloc(sizeof(char), length + 1);
+    memcpy(name_str, buf, length);
+
+    PyObject *retval = call_p6_method(PyInt_AsLong(index), name_str, params, NULL);
+    return retval;
+}
+
+static PyMethodDef perl_functions[] = {
+    {"invoke", perl6_invoke, METH_VARARGS, PyDoc_STR("invoke(object, method_name, *args) -> retval")},
+    {NULL,              NULL}                /* sentinel */
+};
+
+PyMODINIT_FUNC initperl6(void){
+    /* Create the module and add the functions */
+#if PY_MAJOR_VERSION >= 3
+    static struct PyModuleDef perl_module = {
+        PyModuleDef_HEAD_INIT,
+        "perl6",
+        "perl6 -- Access a Perl 6 interpreter transparently",
+        -1, /* m_size */
+        perl_functions, /* m_methods */
+        0, /* m_reload */
+        0, /* m_traverse */
+        0, /* m_clear */
+        0 /* m_free */
+    };
+    (void) PyModule_Create(&perl_module);
+#else
+    (void) Py_InitModule3(
+        "perl6",
+        perl_functions,
+        "perl6 -- Access a Perl interpreter transparently"
+    );
+#endif
 }
