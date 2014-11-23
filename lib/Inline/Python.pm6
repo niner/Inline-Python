@@ -1,5 +1,6 @@
 class Inline::Python;
 
+has &!call_object;
 has &!call_method;
 
 use NativeCall;
@@ -50,9 +51,12 @@ class ObjectKeeper {
     }
 }
 
-sub py_init_python(&call_method(Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
+sub py_init_python(&call_object(Int, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method(Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
     { ... }
     native(&py_init_python);
+sub py_init_perl6object()
+    { ... }
+    native(&py_init_perl6object);
 sub py_eval(Str, Int)
     returns OpaquePointer { ... }
     native(&py_eval);
@@ -80,6 +84,9 @@ sub py_sequence_check(OpaquePointer)
 sub py_mapping_check(OpaquePointer)
     returns int32 { ... }
     native(&py_mapping_check);
+sub py_callable_check(OpaquePointer)
+    returns int32 { ... }
+    native(&py_callable_check);
 sub py_is_none(OpaquePointer)
     returns int32 { ... }
     native(&py_is_none);
@@ -183,7 +190,7 @@ method py_to_p6(OpaquePointer $value) {
     if py_is_none($value) {
         return Any;
     }
-    elsif py_instance_check($value) {
+    elsif py_instance_check($value) or py_callable_check($value) {
         if py_is_instance($value, $perl6object) {
             return $objects.get(
                 py_int_as_long(
@@ -319,6 +326,18 @@ method invoke(OpaquePointer $obj, Str $method, *@args) {
 }
 
 method BUILD {
+    &!call_object = sub (Int $index, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+        my $p6obj = $objects.get($index);
+        my \retvals = $p6obj(|self.py_array_to_array($args));
+        return self.p6_to_py(retvals);
+        CATCH {
+            default {
+                warn $_;
+                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_);
+                return OpaquePointer;
+            }
+        }
+    }
     &!call_method = sub (Int $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
         my $p6obj = $objects.get($index);
         my @retvals = $p6obj."$name"(|self.py_array_to_array($args));
@@ -331,18 +350,23 @@ method BUILD {
         }
     }
 
-    py_init_python(&!call_method);
+    py_init_python(&!call_object, &!call_method);
 
     self.run(q:heredoc/PYTHON/);
-import perl6
-class Perl6Object:
-    def __init__(self, index):
-        self.index = index
-    def get_perl6_object(self):
-        return self.index
-    def __getattr__(self, attr):
-        return lambda *args: perl6.invoke(self.index, attr, args)
-PYTHON
+        import perl6
+        from logging import warn
+        class Perl6Object:
+            def __init__(self, index):
+                self.index = index
+            def get_perl6_object(self):
+                return self.index
+            def __call__(self, *args):
+                return perl6.call(self.index, args)
+            def __getattr__(self, attr):
+                return lambda *args: perl6.invoke(self.index, attr, args)
+        PYTHON
+
+    py_init_perl6object();
 
     $perl6object = py_eval('Perl6Object', 0);
 }
@@ -353,15 +377,42 @@ class PythonObject {
 
     method sink() { self }
 
+    method postcircumfix:<( )>(\args) {
+        $.python.invoke($.ptr, '__call__', args.list);
+    }
+
+    method invoke(\args) {
+        $.python.invoke($.ptr, '__call__', args.list);
+    }
+
     method DESTROY {
         $!python.py_dec_ref($!ptr) if $!ptr;
         $!ptr = OpaquePointer;
     }
 }
 
+role PythonParent[$package, $class] {
+    has $.parent;
+    has $.python;
+
+    submethod BUILD(:$python, :$parent?) {
+        $!parent = $parent // $python.call($package, $class);
+        $!python = $python;
+        #$python.rebless($!parent);
+    }
+
+    ::?CLASS.HOW.add_fallback(::?CLASS, -> $, $ { True },
+        method ($name) {
+            -> \self, |args {
+                $.python.invoke(self, $.parent.ptr, $name, args.list);
+            }
+        }
+    );
+}
+
 BEGIN {
     PythonObject.^add_fallback(-> $, $ { True },
-        method ($name ) {
+        method ($name) {
             -> \self, |args {
                 $.python.invoke($.ptr, $name, args.list);
             }

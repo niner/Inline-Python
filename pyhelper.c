@@ -2,15 +2,17 @@
 
 void initperl6(void);
 
+PyObject *(*call_p6_object)(int, PyObject *, PyObject **);
 PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
 
-void py_init_python(PyObject *(*call_method)(int, char * , PyObject *, PyObject **)) {
+void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyObject *(*call_method)(int, char * , PyObject *, PyObject **)) {
     /* sometimes Python needs to know about argc and argv to be happy */
     int _python_argc = 1;
     char *_python_argv[] = {
         "python",
     };
 
+    call_p6_object = call_object;
     call_p6_method = call_method;
 
     Py_SetProgramName("python");
@@ -19,6 +21,14 @@ void py_init_python(PyObject *(*call_method)(int, char * , PyObject *, PyObject 
     initperl6();
 
     PySys_SetArgv(_python_argc, _python_argv);  /* Tk needs this */
+}
+
+PyObject *perl6object;
+
+void py_init_perl6object() {
+    PyObject *main_module = PyImport_AddModule("__main__");
+    PyObject *globals = PyModule_GetDict(main_module);
+    perl6object = PyDict_GetItemString(globals, "Perl6Object");
 }
 
 PyObject *py_eval(const char* p, int type) {
@@ -79,6 +89,10 @@ int py_sequence_check(PyObject *obj) {
 
 int py_mapping_check(PyObject *obj) {
     return PyMapping_Check(obj);
+}
+
+int py_callable_check(PyObject *obj) {
+    return PyFunction_Check(obj) || PyMethod_Check(obj);
 }
 
 int py_is_none(PyObject *obj) {
@@ -201,6 +215,14 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     return py_retval;
 }
 
+static PyObject *perl6_call(PyObject *self, PyObject *args) {
+    PyObject * const index  = PySequence_GetItem(args, 0);
+    PyObject * const params = PySequence_GetItem(args, 1);
+
+    PyObject *retval = call_p6_object(PyInt_AsLong(index), params, NULL);
+    return retval;
+}
+
 static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
     PyObject * const index  = PySequence_GetItem(args, 0);
     PyObject * const name   = PySequence_GetItem(args, 1);
@@ -217,6 +239,7 @@ static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef perl_functions[] = {
+    {"call",   perl6_call,   METH_VARARGS, PyDoc_STR("invoke(object, *args) -> retval")},
     {"invoke", perl6_invoke, METH_VARARGS, PyDoc_STR("invoke(object, method_name, *args) -> retval")},
     {NULL,              NULL}                /* sentinel */
 };
