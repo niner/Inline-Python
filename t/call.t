@@ -85,13 +85,13 @@ if ($py.call('__main__', 'test_int_retval') == 1) {
 else {
     say "not ok 4 - return one int";
 }
-my @retvals = $py.call('__main__', 'test_int_retvals');
-if (@retvals == 3 and @retvals[0] == 3 and @retvals[1] == 1 and @retvals[2] == 2) {
+my $retvals = $py.call('__main__', 'test_int_retvals');
+if ($retvals.elems == 3 and $retvals[0] == 3 and $retvals[1] == 1 and $retvals[2] == 2) {
     say "ok 5 - return three ints";
 }
 else {
     say "not ok 5 - return three ints";
-    say "    got: {@retvals}";
+    say "    got: {$retvals}";
     say "    expected: 3, 1, 2";
 }
 if ($py.call('__main__', 'test_str_retval') eq 'Hello Perl 6!') {
@@ -100,13 +100,13 @@ if ($py.call('__main__', 'test_str_retval') eq 'Hello Perl 6!') {
 else {
     say "not ok 6 - return one string";
 }
-@retvals = $py.call('__main__', 'test_mixed_retvals');
-if (@retvals == 3 and @retvals[0] eq 'Hello' and @retvals[1] eq 'Perl' and @retvals[2] == 6) {
+$retvals = $py.call('__main__', 'test_mixed_retvals');
+if ($retvals == 3 and $retvals[0] eq 'Hello' and $retvals[1] eq 'Perl' and $retvals[2] == 6) {
     say "ok 7 - return mixed values";
 }
 else {
     say "not ok 7 - return mixed values";
-    say "    got: {@retvals}";
+    say "    got: {$retvals}";
     say "    expected: 'Hello', 'Perl', 6";
 }
 

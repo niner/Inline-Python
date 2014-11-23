@@ -164,22 +164,22 @@ sub free_p6_object(Int $index) {
 }
 
 method py_array_to_array(OpaquePointer $py_array) {
-    my @array = [];
+    my $array = [];
     my $len = py_sequence_length($py_array);
     for 0..^$len {
         my $item = py_sequence_get_item($py_array, $_);
-        @array[$_] = self.py_to_p6($item);
+        $array[$_] = self.py_to_p6($item);
         py_dec_ref($item);
     }
-    return @array;
+    return $array;
 }
 
 method py_dict_to_hash(OpaquePointer $py_dict) {
     my %hash;
-    my $items = py_mapping_items($py_dict);
-    my @items = self.py_to_p6($items);
-    py_dec_ref($items);
-    %hash{$_[0]} = $_[1] for @items;
+    my $py_items = py_mapping_items($py_dict);
+    my $items = self.py_to_p6($py_items);
+    py_dec_ref($py_items);
+    %hash{$_[0]} = $_[1] for $items.list;
     return %hash;
 }
 
@@ -340,8 +340,8 @@ method BUILD {
     }
     &!call_method = sub (Int $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
         my $p6obj = $objects.get($index);
-        my @retvals = $p6obj."$name"(|self.py_array_to_array($args));
-        return self.p6_to_py(@retvals);
+        my \retvals = $p6obj."$name"(|self.py_array_to_array($args));
+        return self.p6_to_py(retvals);
         CATCH {
             default {
                 nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_p5($_);
