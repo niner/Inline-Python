@@ -23,6 +23,7 @@ sub native(Sub $sub) {
 }
 
 class PythonObject { ... }
+role PythonParent { ... }
 
 class ObjectKeeper {
     has @!objects;
@@ -138,6 +139,9 @@ sub py_call_function(Str, Str, int, CArray[OpaquePointer])
 sub py_call_method(OpaquePointer, Str, int, CArray[OpaquePointer])
     returns OpaquePointer { ... }
     native(&py_call_method);
+sub py_call_method_inherited(OpaquePointer, OpaquePointer, Str, int, CArray[OpaquePointer])
+    returns OpaquePointer { ... }
+    native(&py_call_method_inherited);
 sub py_sequence_length(OpaquePointer)
     returns int { ... }
     native(&py_sequence_length);
@@ -156,6 +160,9 @@ sub py_dec_ref(OpaquePointer)
 sub py_inc_ref(OpaquePointer)
     { ... }
     native(&py_inc_ref);
+sub py_getattr(OpaquePointer, Str)
+    returns OpaquePointer { ... }
+    native(&py_getattr);
 
 my $objects = ObjectKeeper.new;
 
@@ -280,6 +287,10 @@ multi method p6_to_py(PythonObject:D $value) {
     $value.ptr;
 }
 
+multi method p6_to_py(OpaquePointer:D $value) {
+    return $value;
+}
+
 multi method p6_to_py(Any:U $value) returns OpaquePointer {
     py_none();
 }
@@ -307,22 +318,38 @@ multi method run($python, :$eval!) {
 multi method run($python, :$file) {
     my $res = py_eval($python, 1);
     self.py_to_p6($res);
+    CATCH {
+        default {
+            warn $_;
+            die $_;
+        }
+    }
 }
 
 method call(Str $package, Str $function, *@args) {
     my $py_retval = py_call_function($package, $function, self!setup_arguments(@args));
     return unless defined $py_retval;
     my \retval = self.py_to_p6($py_retval);
-    py_dec_ref($py_retval);
     return retval;
 }
 
-method invoke(OpaquePointer $obj, Str $method, *@args) {
+multi method invoke(OpaquePointer $obj, Str $method, *@args) {
     my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
     return unless defined $py_retval;
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
     return retval;
+}
+multi method invoke(PythonParent $p6obj, OpaquePointer $obj, Str $method, *@args) {
+    my $py_retval = py_call_method_inherited(self.p6_to_py($p6obj), $obj, $method, self!setup_arguments(@args));
+    return unless defined $py_retval;
+    my \retval = self.py_to_p6($py_retval);
+    py_dec_ref($py_retval);
+    return retval;
+}
+
+method py_getattr(OpaquePointer $obj, Str $name) {
+    return py_getattr($obj, $name);
 }
 
 method BUILD {
@@ -355,6 +382,7 @@ method BUILD {
     self.run(q:heredoc/PYTHON/);
         import perl6
         from logging import warn
+        from functools import partial
         class Perl6Object:
             def __init__(self, index):
                 self.index = index
@@ -363,6 +391,17 @@ method BUILD {
             def __call__(self, *args):
                 return perl6.call(self.index, args)
             def __getattr__(self, attr):
+                if attr == '__p6_getattr__':
+                    raise AttributeError(attr)
+                if not hasattr(self, '__p6_getattr__'):
+                    self.__p6_getattr__ = perl6.invoke(self.index, 'can', [u"__getattr__"])
+                if len(self.__p6_getattr__):
+                    return self.__p6_getattr__[0](self, attr.decode('UTF-8'))
+                else:
+                    candidates = perl6.invoke(self.index, 'can', [attr.decode('UTF-8')])
+                    if not len(candidates):
+                        raise AttributeError(attr)
+                    return partial(candidates[0], self)
                 return lambda *args: perl6.invoke(self.index, attr, args)
         PYTHON
 
@@ -399,6 +438,15 @@ role PythonParent[$package, $class] {
         $!parent = $parent // $python.call($package, $class);
         $!python = $python;
         #$python.rebless($!parent);
+    }
+
+    method __getattr__($attr) {
+        my $candidates = self.^can($attr);
+        return (
+            $candidates.elems
+                ?? -> |args { $candidates[0](self, |args.list) }
+                !! $.python.py_getattr($.parent.ptr, $attr)
+        );
     }
 
     ::?CLASS.HOW.add_fallback(::?CLASS, -> $, $ { True },

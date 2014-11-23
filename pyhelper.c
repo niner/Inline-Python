@@ -193,6 +193,10 @@ void py_inc_ref(PyObject *obj) {
     Py_INCREF(obj);
 }
 
+PyObject *py_getattr(PyObject *obj, char *name) {
+    return PyObject_GetAttrString(obj, name);
+}
+
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     PyObject * const mod       = PyImport_AddModule(pkg);
     PyObject * const dict      = PyModule_GetDict(mod);
@@ -210,6 +214,18 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     PyObject *method = PyObject_GetAttrString(obj, name);
     PyObject *py_retval = PyObject_CallObject(method, args);
     Py_DECREF(method);
+    Py_DECREF(args);
+
+    return py_retval;
+}
+
+PyObject *py_call_method_inherited(PyObject *p6obj, PyObject *obj, char *name, PyObject *args) {
+    PyObject *method = PyObject_GetAttrString(obj, name);
+    PyObject *function = PyMethod_Function(method);
+    PyObject *inherited_method = PyMethod_New(function, p6obj, perl6object);
+    PyObject *py_retval = PyObject_CallObject(inherited_method, args);
+    Py_DECREF(method);
+    Py_DECREF(inherited_method);
     Py_DECREF(args);
 
     return py_retval;
