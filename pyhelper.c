@@ -51,11 +51,6 @@ PyObject *py_eval(const char* p, int type) {
             ? Py_file_input
             : Py_single_input;
     py_result = PyRun_String(p, context, globals, locals);
-    if (!py_result) {
-        PyErr_Print();
-        printf("Error -- py_eval raised an exception");
-        return NULL;
-    }
     return py_result;
 }
 
@@ -203,17 +198,46 @@ PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     PyObject * const func      = PyMapping_GetItemString(dict, name);
     PyObject *py_retval = NULL;
 
+    if (func == NULL) {
+        PyErr_Format(PyExc_NameError, "name '%s' is not defined", name);
+        goto cleanup;
+    }
+
     py_retval = PyObject_CallObject(func, args);
+
     Py_DECREF(func);
+    cleanup:
     Py_DECREF(args);
 
     return py_retval;
 }
 
+void py_fetch_error(PyObject **exception) {
+    /* ex_type, ex_value, ex_trace, ex_message */
+    PyErr_Fetch(&exception[0], &exception[1], &exception[2]);
+    PyErr_NormalizeException(&exception[0], &exception[1], &exception[2]);
+    exception[3] = PyObject_Unicode(exception[1]); /* new reference */
+}
+
+void py_raise_missing_method(PyObject *obj, char *name) {
+    PyObject *class = PyObject_GetAttrString(obj, "__class__");
+    PyObject *class_name = PyObject_GetAttrString(class, "__name__");
+    char *c_class_name = PyString_AsString(class_name);
+    PyErr_Format(PyExc_NameError, "%s instance has no attribute '%s'", c_class_name, name);
+    Py_DECREF(class_name);
+    Py_DECREF(class);
+}
+
 PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     PyObject *method = PyObject_GetAttrString(obj, name);
+    if (method == NULL) {
+        py_raise_missing_method(obj, name);
+        goto cleanup;
+    }
     PyObject *py_retval = PyObject_CallObject(method, args);
     Py_DECREF(method);
+
+    cleanup:
     Py_DECREF(args);
 
     return py_retval;
@@ -221,11 +245,17 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
 
 PyObject *py_call_method_inherited(PyObject *p6obj, PyObject *obj, char *name, PyObject *args) {
     PyObject *method = PyObject_GetAttrString(obj, name);
+    if (method == NULL) {
+        py_raise_missing_method(obj, name);
+        goto cleanup;
+    }
     PyObject *function = PyMethod_Function(method);
     PyObject *inherited_method = PyMethod_New(function, p6obj, perl6object);
     PyObject *py_retval = PyObject_CallObject(inherited_method, args);
     Py_DECREF(method);
     Py_DECREF(inherited_method);
+
+    cleanup:
     Py_DECREF(args);
 
     return py_retval;
@@ -234,8 +264,13 @@ PyObject *py_call_method_inherited(PyObject *p6obj, PyObject *obj, char *name, P
 static PyObject *perl6_call(PyObject *self, PyObject *args) {
     PyObject * const index  = PySequence_GetItem(args, 0);
     PyObject * const params = PySequence_GetItem(args, 1);
+    PyObject * error = NULL;
 
-    PyObject *retval = call_p6_object(PyInt_AsLong(index), params, NULL);
+    PyObject *retval = call_p6_object(PyInt_AsLong(index), params, &error);
+    if (error != NULL) {
+        PyErr_SetObject(PyExc_Exception, error);
+        return NULL;
+    }
     return retval;
 }
 
@@ -243,6 +278,7 @@ static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
     PyObject * const index  = PySequence_GetItem(args, 0);
     PyObject * const name   = PySequence_GetItem(args, 1);
     PyObject * const params = PySequence_GetItem(args, 2);
+    PyObject * error = NULL;
 
     Py_ssize_t length;
     char * buf;
@@ -250,7 +286,11 @@ static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
     char * const name_str = calloc(sizeof(char), length + 1);
     memcpy(name_str, buf, length);
 
-    PyObject *retval = call_p6_method(PyInt_AsLong(index), name_str, params, NULL);
+    PyObject *retval = call_p6_method(PyInt_AsLong(index), name_str, params, &error);
+    if (error != NULL) {
+        PyErr_SetObject(PyExc_Exception, error);
+        return NULL;
+    }
     return retval;
 }
 

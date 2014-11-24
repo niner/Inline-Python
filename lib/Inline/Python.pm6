@@ -163,6 +163,9 @@ sub py_inc_ref(OpaquePointer)
 sub py_getattr(OpaquePointer, Str)
     returns OpaquePointer { ... }
     native(&py_getattr);
+sub py_fetch_error(CArray[OpaquePointer], CArray[OpaquePointer], CArray[OpaquePointer], CArray[OpaquePointer])
+    { ... }
+    native(&py_fetch_error);
 
 my $objects = ObjectKeeper.new;
 
@@ -310,39 +313,48 @@ method !setup_arguments(@args) {
     return $tuple;
 }
 
+method handle_python_exception() is hidden_from_backtrace {
+    my @exception := CArray[OpaquePointer].new();
+    @exception[$_] = OpaquePointer for ^4;
+    py_fetch_error(@exception);
+    my $ex_type    = @exception[0];
+    my $ex_message = @exception[3];
+    if $ex_type {
+        my $message = self.py_to_p6($ex_message);
+        @exception[$_] and py_dec_ref(@exception[$_]) for ^4;
+        die $message;
+    }
+}
+
 multi method run($python, :$eval!) {
     my $res = py_eval($python, 0);
+    self.handle_python_exception();
     self.py_to_p6($res);
 }
 
 multi method run($python, :$file) {
     my $res = py_eval($python, 1);
+    self.handle_python_exception();
     self.py_to_p6($res);
-    CATCH {
-        default {
-            warn $_;
-            die $_;
-        }
-    }
 }
 
 method call(Str $package, Str $function, *@args) {
     my $py_retval = py_call_function($package, $function, self!setup_arguments(@args));
-    return unless defined $py_retval;
+    self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     return retval;
 }
 
 multi method invoke(OpaquePointer $obj, Str $method, *@args) {
     my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
-    return unless defined $py_retval;
+    self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
     return retval;
 }
 multi method invoke(PythonParent $p6obj, OpaquePointer $obj, Str $method, *@args) {
     my $py_retval = py_call_method_inherited(self.p6_to_py($p6obj), $obj, $method, self!setup_arguments(@args));
-    return unless defined $py_retval;
+    self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
     return retval;
@@ -359,8 +371,7 @@ method BUILD {
         return self.p6_to_py(retvals);
         CATCH {
             default {
-                warn $_;
-                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_);
+                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_.Str());
                 return OpaquePointer;
             }
         }
@@ -371,7 +382,7 @@ method BUILD {
         return self.p6_to_py(retvals);
         CATCH {
             default {
-                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_p5($_);
+                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_.Str());
                 return OpaquePointer;
             }
         }
