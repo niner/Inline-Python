@@ -216,7 +216,7 @@ void py_fetch_error(PyObject **exception) {
     /* ex_type, ex_value, ex_trace, ex_message */
     PyErr_Fetch(&exception[0], &exception[1], &exception[2]);
     PyErr_NormalizeException(&exception[0], &exception[1], &exception[2]);
-    exception[3] = PyObject_Unicode(exception[1]); /* new reference */
+    exception[3] = PyObject_Str(exception[1]); /* new reference */
 }
 
 void py_raise_missing_method(PyObject *obj, char *name) {

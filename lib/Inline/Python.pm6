@@ -322,7 +322,7 @@ method handle_python_exception() is hidden_from_backtrace {
     if $ex_type {
         my $message = self.py_to_p6($ex_message);
         @exception[$_] and py_dec_ref(@exception[$_]) for ^4;
-        die $message;
+        die $message.decode('UTF-8');
     }
 }
 
