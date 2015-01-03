@@ -136,6 +136,9 @@ sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
 sub py_call_function(Str, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_function);
+sub py_call_static_method(Str, Str, Str, OpaquePointer)
+    returns OpaquePointer { ... }
+    native(&py_call_static_method);
 sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
@@ -345,6 +348,13 @@ method call(Str $package, Str $function, *@args) {
     return retval;
 }
 
+multi method invoke(Str $pkg, Str $class, Str $method, *@args) {
+    my $py_retval = py_call_static_method($pkg, $class, $method, self!setup_arguments(@args));
+    self.handle_python_exception();
+    my \retval = self.py_to_p6($py_retval);
+    py_dec_ref($py_retval);
+    return retval;
+}
 multi method invoke(OpaquePointer $obj, Str $method, *@args) {
     my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
     self.handle_python_exception();

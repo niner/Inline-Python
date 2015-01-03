@@ -228,6 +228,24 @@ void py_raise_missing_method(PyObject *obj, char *name) {
     Py_DECREF(class);
 }
 
+PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *args) {
+    PyObject * const mod  = PyImport_AddModule(pkg);
+    PyObject * const dict = PyModule_GetDict(mod);
+    PyObject * const obj  = PyMapping_GetItemString(dict, class);
+    PyObject *method = PyObject_GetAttrString(obj, name);
+    if (method == NULL) {
+        py_raise_missing_method(obj, name);
+        goto cleanup;
+    }
+    PyObject *py_retval = PyObject_CallObject(method, args);
+    Py_DECREF(method);
+
+    cleanup:
+    Py_DECREF(args);
+
+    return py_retval;
+}
+
 PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     PyObject *method = PyObject_GetAttrString(obj, name);
     if (method == NULL) {
