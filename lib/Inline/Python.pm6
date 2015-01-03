@@ -54,7 +54,7 @@ class ObjectKeeper {
     }
 }
 
-sub py_init_python(&call_object(Int, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method(Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
+sub py_init_python(&call_object (Int, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method (Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
     { ... }
     native(&py_init_python);
 sub py_init_perl6object()
