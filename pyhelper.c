@@ -261,28 +261,6 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     return py_retval;
 }
 
-PyObject *py_call_method_inherited(PyObject *p6obj, PyObject *obj, char *name, PyObject *args) {
-    PyObject *method = PyObject_GetAttrString(obj, name);
-    if (method == NULL) {
-        py_raise_missing_method(obj, name);
-        goto cleanup;
-    }
-    PyObject *function = PyMethod_Function(method);
-    if (function == NULL) {
-        py_raise_missing_method(obj, name);
-        goto cleanup;
-    }
-    PyObject *inherited_method = PyMethod_New(function, p6obj, perl6object);
-    PyObject *py_retval = PyObject_CallObject(inherited_method, args);
-    Py_DECREF(method);
-    Py_DECREF(inherited_method);
-
-    cleanup:
-    Py_DECREF(args);
-
-    return py_retval;
-}
-
 static PyObject *perl6_call(PyObject *self, PyObject *args) {
     PyObject * const index  = PySequence_GetItem(args, 0);
     PyObject * const params = PySequence_GetItem(args, 1);

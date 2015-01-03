@@ -1,5 +1,7 @@
 class Inline::Python;
 
+our $default_python;
+
 has &!call_object;
 has &!call_method;
 
@@ -142,9 +144,6 @@ sub py_call_static_method(Str, Str, Str, OpaquePointer)
 sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
-sub py_call_method_inherited(OpaquePointer, OpaquePointer, Str, OpaquePointer)
-    returns OpaquePointer { ... }
-    native(&py_call_method_inherited);
 sub py_sequence_length(OpaquePointer)
     returns int { ... }
     native(&py_sequence_length);
@@ -363,7 +362,7 @@ multi method invoke(OpaquePointer $obj, Str $method, *@args) {
     return retval;
 }
 multi method invoke(PythonParent $p6obj, OpaquePointer $obj, Str $method, *@args) {
-    my $py_retval = py_call_method_inherited(self.p6_to_py($p6obj), $obj, $method, self!setup_arguments(@args));
+    my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
     self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
@@ -374,7 +373,51 @@ method py_getattr(OpaquePointer $obj, Str $name) {
     return py_getattr($obj, $name);
 }
 
+method create_subclass(Str $package, Str $class, Str $subclass_name) {
+    my $subclass = ::($subclass_name);
+    my $methods = $subclass\
+        .^methods\
+        .map({"    def {$_.gist}(self, *args): return perl6.invoke(self.__p6_index__, '{$_.gist}', args)"})\
+        .join("\n");
+    my $baseclass_name = $package eq '__main__' ?? $class !! "$package.$class";
+    self.run(qq:heredoc/PYTHON/ ~ $methods, :file);
+        class {$subclass_name}($baseclass_name):
+            def __init__(self, i, *args):
+                if i is not None:
+                    self.__set_p6_index__(i)
+                if hasattr({$baseclass_name}, '__init__'):
+                    {$baseclass_name}.__init__(self, *args)
+            def __set_p6_index__(self, i):
+                self.__p6_index__ = i
+        PYTHON
+    CATCH {
+        default {
+            die "$_ trying to create subclass $subclass_name from $package.$class";
+        }
+    }
+}
+
+method create_parent_object(Str $package, Str $class, PythonParent $obj) returns PythonObject {
+    my $tuple = py_tuple_new(1);
+    my $index = $objects.keep($obj);
+    py_tuple_set_item($tuple, 0, self.p6_to_py($index));
+    my $parent = py_call_function($package, $class, $tuple);
+    self.handle_python_exception();
+    return self.py_to_p6($parent);
+}
+
+method upgrade_parent_object(PythonObject $parent, PythonParent $obj) {
+    my $tuple = py_tuple_new(1);
+    my $index = $objects.keep($obj);
+    py_tuple_set_item($tuple, 0, self.p6_to_py($index));
+    my $py_retval = py_call_method($parent.ptr, '__set_p6_index__', $tuple);
+    self.handle_python_exception();
+    return;
+}
+
 method BUILD {
+    $default_python = self;
+
     &!call_object = sub (Int $index, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
         my $p6obj = $objects.get($index);
         my \retvals = $p6obj(|self.py_array_to_array($args));
@@ -454,12 +497,16 @@ class PythonObject {
 
 role PythonParent[$package, $class] {
     has $.parent;
-    has $.python;
+    my %python_subclass_created;
 
-    submethod BUILD(:$python, :$parent?) {
-        $!parent = $parent // $python.call($package, $class);
-        $!python = $python;
-        #$python.rebless($!parent);
+    submethod BUILD(:$parent?) {
+        unless (%python_subclass_created{::?CLASS.^name}) {
+            %python_subclass_created{::?CLASS.^name} = True;
+
+            $default_python.create_subclass($package, $class, ::?CLASS.^name);
+        }
+        $default_python.upgrade_parent_object($parent, self) if $parent;
+        $!parent = $parent // $default_python.create_parent_object('__main__', ::?CLASS.^name, self);
     }
 
     method __getattr__($attr) {
@@ -467,14 +514,14 @@ role PythonParent[$package, $class] {
         return (
             $candidates.elems
                 ?? -> |args { $candidates[0](self, |args.list) }
-                !! $.python.py_getattr($.parent.ptr, $attr)
+                !! Any;
         );
     }
 
     ::?CLASS.HOW.add_fallback(::?CLASS, -> $, $ { True },
         method ($name) {
             -> \self, |args {
-                $.python.invoke(self, $.parent.ptr, $name, args.list);
+                $default_python.invoke(self, $.parent.ptr, $name, args.list);
             }
         }
     );
