@@ -221,11 +221,16 @@ void py_fetch_error(PyObject **exception) {
 
 void py_raise_missing_method(PyObject *obj, char *name) {
     PyObject *class = PyObject_GetAttrString(obj, "__class__");
-    PyObject *class_name = PyObject_GetAttrString(class, "__name__");
-    char *c_class_name = PyString_AsString(class_name);
-    PyErr_Format(PyExc_NameError, "%s instance has no attribute '%s'", c_class_name, name);
-    Py_DECREF(class_name);
-    Py_DECREF(class);
+    if (class) {
+        PyObject *class_name = PyObject_GetAttrString(class, "__name__");
+        char *c_class_name = PyString_AsString(class_name);
+        PyErr_Format(PyExc_NameError, "%s instance has no attribute '%s'", c_class_name, name);
+        Py_DECREF(class_name);
+        Py_DECREF(class);
+    }
+    else {
+        PyErr_Format(PyExc_NameError, "instance has no attribute '%s'", name);
+    }
 }
 
 PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *args) {
