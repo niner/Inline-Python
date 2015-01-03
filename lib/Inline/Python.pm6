@@ -401,9 +401,10 @@ method BUILD {
     py_init_python(&!call_object, &!call_method);
 
     self.run(q:heredoc/PYTHON/);
+        import signal
         import perl6
-        from logging import warn
         from functools import partial
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
         class Perl6Object:
             def __init__(self, index):
                 self.index = index
