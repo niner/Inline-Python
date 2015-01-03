@@ -133,13 +133,13 @@ sub py_dict_new()
 sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
     { ... }
     native(&py_dict_set_item);
-sub py_call_function(Str, Str, int, CArray[OpaquePointer])
+sub py_call_function(Str, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_function);
-sub py_call_method(OpaquePointer, Str, int, CArray[OpaquePointer])
+sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
-sub py_call_method_inherited(OpaquePointer, OpaquePointer, Str, int, CArray[OpaquePointer])
+sub py_call_method_inherited(OpaquePointer, OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method_inherited);
 sub py_sequence_length(OpaquePointer)
