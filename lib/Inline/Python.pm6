@@ -481,12 +481,12 @@ class PythonObject {
 
     method sink() { self }
 
-    method postcircumfix:<( )>(\args) {
-        $.python.invoke($.ptr, '__call__', args.list);
+    method postcircumfix:<( )>(*@args) {
+        $.python.invoke($.ptr, '__call__', |@args);
     }
 
-    method invoke(\args) {
-        $.python.invoke($.ptr, '__call__', args.list);
+    method invoke(*@args) {
+        $.python.invoke($.ptr, '__call__', |@args);
     }
 
     method DESTROY {
