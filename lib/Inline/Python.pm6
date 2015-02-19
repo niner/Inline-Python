@@ -509,15 +509,6 @@ role PythonParent[$package, $class] {
         $!parent = $parent // $default_python.create_parent_object('__main__', ::?CLASS.^name, self);
     }
 
-    method __getattr__($attr) {
-        my $candidates = self.^can($attr);
-        return (
-            $candidates.elems
-                ?? -> |args { $candidates[0](self, |args.list) }
-                !! Any;
-        );
-    }
-
     ::?CLASS.HOW.add_fallback(::?CLASS, -> $, $ { True },
         method ($name) {
             -> \self, |args {
