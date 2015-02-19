@@ -78,7 +78,6 @@ $py.run(q:heredoc/PYTHON/);
         try:
             foo.depart()
         except Exception, e:
-            logging.warn(e)
             return e.message
     PYTHON
 
