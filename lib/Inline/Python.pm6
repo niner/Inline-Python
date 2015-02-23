@@ -105,9 +105,12 @@ sub py_float_as_double(OpaquePointer)
 sub py_float_to_py(num64)
     returns OpaquePointer { ... }
     native(&py_float_to_py);
-sub py_unicode_to_char_star(OpaquePointer)
+sub py_unicode_as_utf8_string(OpaquePointer)
+    returns OpaquePointer { ... }
+    native(&py_unicode_as_utf8_string);
+sub py_string_as_string(OpaquePointer)
     returns Str { ... }
-    native(&py_unicode_to_char_star);
+    native(&py_string_as_string);
 sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
     returns Int { ... }
     native(&py_string_to_buf);
@@ -226,7 +229,10 @@ method py_to_p6(OpaquePointer $value) {
         return py_float_as_double($value);
     }
     elsif py_unicode_check($value) {
-        return py_unicode_to_char_star($value);
+        my $string = py_unicode_as_utf8_string($value) or return;
+        my $p6_str = py_string_as_string($string);
+        py_dec_ref($string);
+        return $p6_str;
     }
     elsif py_string_check($value) {
         my $string_ptr = CArray[CArray[int8]].new;

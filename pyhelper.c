@@ -118,24 +118,17 @@ PyObject *py_buf_to_py(int len, char *buf) {
     return PyString_FromStringAndSize(buf, len);
 }
 
-char *py_unicode_to_char_star(PyObject *obj) {
-    PyObject * const string = PyUnicode_AsUTF8String(obj);    /* new reference */
-    if (!string) {
-        return NULL;
-    }
-    char * const str = PyString_AsString(string);
-    Py_DECREF(string);
-    return str;
+PyObject *py_unicode_as_utf8_string(PyObject *obj) {
+    return PyUnicode_AsUTF8String(obj);    /* new reference */
+}
+
+char *py_string_as_string(PyObject *obj) {
+    return PyString_AsString(obj);
 }
 
 Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
-    PyObject * const string = PyObject_Str(obj);    /* new reference */
-    if (!string) {
-        return 0;
-    }
     Py_ssize_t length;
     PyString_AsStringAndSize(obj, buf, &length);
-    Py_DECREF(string);
     return length;
 }
 
