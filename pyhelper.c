@@ -281,10 +281,8 @@ static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
     Py_ssize_t length;
     char * buf;
     PyString_AsStringAndSize(name, &buf, &length);
-    char * const name_str = calloc(sizeof(char), length + 1);
-    memcpy(name_str, buf, length);
 
-    PyObject *retval = call_p6_method(PyInt_AsLong(index), name_str, params, &error);
+    PyObject *retval = call_p6_method(PyInt_AsLong(index), buf, params, &error);
     if (error != NULL) {
         PyErr_SetObject(PyExc_Exception, error);
         return NULL;
