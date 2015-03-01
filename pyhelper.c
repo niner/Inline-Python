@@ -260,8 +260,8 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
 }
 
 static PyObject *perl6_call(PyObject *self, PyObject *args) {
-    PyObject * const index  = PySequence_GetItem(args, 0);
-    PyObject * const params = PySequence_GetItem(args, 1);
+    PyObject * const index  = PyTuple_GetItem(args, 0);
+    PyObject * const params = PyTuple_GetItem(args, 1);
     PyObject * error = NULL;
 
     PyObject *retval = call_p6_object(PyInt_AsLong(index), params, &error);
@@ -273,9 +273,9 @@ static PyObject *perl6_call(PyObject *self, PyObject *args) {
 }
 
 static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
-    PyObject * const index  = PySequence_GetItem(args, 0);
-    PyObject * const name   = PySequence_GetItem(args, 1);
-    PyObject * const params = PySequence_GetItem(args, 2);
+    PyObject * const index  = PyTuple_GetItem(args, 0);
+    PyObject * const name   = PyTuple_GetItem(args, 1);
+    PyObject * const params = PyTuple_GetItem(args, 2);
     PyObject * error = NULL;
 
     Py_ssize_t length;
