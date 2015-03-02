@@ -3,7 +3,6 @@
 use v6;
 use Inline::Python;
 use Test;
-use NativeCall;
 
 plan 8;
 

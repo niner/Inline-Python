@@ -3,7 +3,7 @@
     "version" : "*",
     "author" : "github:niner",
     "description" : "Use Python code and libraries in a Perl 6 program",
-    "depends" : [ "NativeCall", "LibraryMake" ],
+    "depends" : [ "LibraryMake" ],
     "provides" : {
         "Inline::Python" : "lib/Inline/Python.pm6"
     },
