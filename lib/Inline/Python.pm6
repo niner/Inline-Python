@@ -491,7 +491,7 @@ class PythonObject {
         $.python.invoke($.ptr, '__call__', |@args);
     }
 
-    method invoke(*@args) {
+    method CALL-ME(*@args) {
         $.python.invoke($.ptr, '__call__', |@args);
     }
 
