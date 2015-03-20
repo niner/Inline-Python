@@ -208,6 +208,8 @@ PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
 void py_fetch_error(PyObject **exception) {
     /* ex_type, ex_value, ex_trace, ex_message */
     PyErr_Fetch(&exception[0], &exception[1], &exception[2]);
+    if (exception[0] == NULL)
+        return;
     PyErr_NormalizeException(&exception[0], &exception[1], &exception[2]);
     exception[3] = PyObject_Str(exception[1]); /* new reference */
 }
