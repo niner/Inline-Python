@@ -321,7 +321,7 @@ method !setup_arguments(@args) {
     return $tuple;
 }
 
-method handle_python_exception() is hidden_from_backtrace {
+method handle_python_exception() is hidden-from-backtrace {
     my @exception := CArray[OpaquePointer].new();
     @exception[$_] = OpaquePointer for ^4;
     py_fetch_error(@exception);
