@@ -168,7 +168,7 @@ sub py_inc_ref(OpaquePointer)
 sub py_getattr(OpaquePointer, Str)
     returns OpaquePointer { ... }
     native(&py_getattr);
-sub py_fetch_error(CArray[OpaquePointer], CArray[OpaquePointer], CArray[OpaquePointer], CArray[OpaquePointer])
+sub py_fetch_error(CArray[OpaquePointer])
     { ... }
     native(&py_fetch_error);
 
