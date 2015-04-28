@@ -379,6 +379,7 @@ method create_subclass(Str $package, Str $class, Str $subclass_name) {
     my $subclass = ::($subclass_name);
     my $methods = $subclass\
         .^methods\
+        .grep({$_.gist ~~ /^\w+$/})\
         .map({"    def {$_.gist}(self, *args): return perl6.invoke(self.__p6_index__, '{$_.gist}', args)"})\
         .join("\n");
     my $baseclass_name = $package eq '__main__' ?? $class !! "$package.$class";
