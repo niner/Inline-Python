@@ -1,4 +1,4 @@
-class Inline::Python;
+unit class Inline::Python;
 
 our $default_python;
 
