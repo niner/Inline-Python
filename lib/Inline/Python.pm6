@@ -1,4 +1,4 @@
-class Inline::Python;
+unit class Inline::Python;
 
 our $default_python;
 
@@ -8,12 +8,33 @@ has &!call_method;
 use NativeCall;
 
 sub native(Sub $sub) {
-    my $so = 'pyhelper.so';
+    my $so = $*VM.config<dll>;
+    $so ~~ s!^.*\%s!pyhelper!;
+    my $base = "lib/Inline/$so";
     state Str $path;
     unless $path {
         for @*INC {
-            if "$_/Inline/$so".IO ~~ :f {
-                $path = "$_/Inline/$so";
+            my $cur = $_ ~~ Str ?? CompUnitRepo.new($_) !! $_;
+            if my @files = ($cur.files($base) || $cur.files("blib/$base")) {
+                my $files = @files[0]<files>;
+                my $tmp = $files{$base} || $files{"blib/$base"};
+
+                # copy to a temp dir
+                #
+                # This is required because CompUnitRepo::Local::Installation stores the file
+                # with a different filename (a number with no extension) that NativeCall doesn't
+                # know how to load. We do this copy to fix the filename.
+                $path = $*SPEC.tmpdir ~ '/' ~ $*PID ~ '-' ~ $so;
+
+                $tmp.IO.copy($path);
+            }
+        }
+    }
+    unless $path {    # TEMPORARY !!!!
+        for @*INC.grep(Str) {
+            my $file = "$_.substr(5)/Inline/$so";
+            if $file.IO.e {
+                $path = $file;
                 last;
             }
         }
