@@ -16,7 +16,7 @@ class Foo {
 }
 
 for ('abcö', Buf.new('äbc'.encode('latin-1')), 24, 2.4.Num, [1, 2], { a => 1, b => 2}, Any, Foo.new) -> $obj {
-    is_deeply $py.call('__main__', 'identity', $obj), $obj, "Can round-trip " ~ $obj.^name;
+    is-deeply $py.call('__main__', 'identity', $obj), $obj, "Can round-trip " ~ $obj.^name;
 }
 
 $py.run(q/
