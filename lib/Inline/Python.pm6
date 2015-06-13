@@ -193,6 +193,10 @@ sub py_fetch_error(CArray[OpaquePointer])
     { ... }
     native(&py_fetch_error);
 
+method py_dec_ref(OpaquePointer $obj) {
+    py_dec_ref($obj);
+}
+
 my $objects = ObjectKeeper.new;
 
 sub free_p6_object(Int $index) {
