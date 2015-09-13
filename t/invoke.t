@@ -14,6 +14,6 @@ $py.run(q:heredoc/PYTHON/);
 
 is($py.invoke('__main__', 'Foo', 'test', 1), 1);
 
-done;
+done-testing;
 
 # vim: ft=perl6

@@ -26,6 +26,6 @@ is $py.run('
 u"Püthon".encode("latin-1")
 ', :eval).decode('latin-1'), 'Püthon';
 
-done;
+done-testing;
 
 # vim: ft=perl6

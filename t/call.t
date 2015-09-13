@@ -131,7 +131,7 @@ else {
     say "not ok 10 - Any converted to undef";
 }
 
-if ($py.call('__main__', 'test_hash', {a => 2, b => {c => [4, 3]}}) == 1) {
+if ($py.call('__main__', 'test_hash', ${a => 2, b => {c => [4, 3]}}) == 1) {
     say "ok 11 - Passing hashes to Python";
 }
 else {

@@ -98,6 +98,6 @@ is $py.call('__main__', 'test_foo', Foo.new), 'foo';
     }
 }
 
-done;
+done-testing;
 
 # vim: ft=perl6
