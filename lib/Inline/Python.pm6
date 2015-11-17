@@ -554,4 +554,13 @@ BEGIN {
             }
         }
     );
+    for Any.^methods>>.name -> $name {
+        PythonObject.^add_method(
+            $name,
+            method (|args) {
+                $.python.invoke($.ptr, $name, args.list);
+            }
+        );
+    }
+    PythonObject.^compose;
 }
