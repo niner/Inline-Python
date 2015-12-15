@@ -13,6 +13,7 @@ $library ~~ s/\.a$//;
 $library ~~ s/^lib//;
 %vars<LIBRARYPY> = $library;
 %vars<LIBPLPY> = get_config_var('LIBPL');
+mkdir 'resources' unless 'resources'.IO.e;
 process-makefile('.', %vars);
 shell(%vars<MAKE>);
 

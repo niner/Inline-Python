@@ -11,9 +11,9 @@ class Build is Panda::Builder {
 
     method build($dir) {
         my Str $blib = "$dir/blib";
-        rm_f("$dir/lib/Inline/pyhelper.so");
         rm_rf($blib);
         mkpath("$blib/lib/Inline");
+        mkpath("$blib/lib/../resources");
 
         my %vars = get-vars("$blib/lib");
         %vars<INCLUDEPY> = get_config_var('INCLUDEPY');
