@@ -1,8 +1,8 @@
 .PHONY: clean test
-all: %DESTDIR%/../resources/pyhelper%SO%
+all: %DESTDIR%/resources/pyhelper%SO%
 clean:
-	rm %DESTDIR%/../resources/pyhelper%SO%
-%DESTDIR%/../resources/pyhelper%SO%: pyhelper.c
-	%CC% pyhelper.c -Wall -I"%INCLUDEPY%" -L"%LIBPLPY%" -l%LIBRARYPY% -shared -o %DESTDIR%/../resources/pyhelper%SO% %CCSHARED% -g
+	rm %DESTDIR%/resources/pyhelper%SO%
+%DESTDIR%/resources/pyhelper%SO%: pyhelper.c
+	%CC% pyhelper.c -Wall -I"%INCLUDEPY%" -L"%LIBPLPY%" -l%LIBRARYPY% -shared -o %DESTDIR%/resources/pyhelper%SO% %CCSHARED% -g
 test: all
 	prove -e 'perl6 -Ilib' t

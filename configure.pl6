@@ -6,7 +6,7 @@ sub get_config_var(Str $name) {
     return chomp(qqx/python -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('$name'));"/);
 }
 
-my %vars = get-vars('lib');
+my %vars = get-vars('.');
 %vars<INCLUDEPY> = get_config_var('INCLUDEPY');
 my $library = get_config_var('LIBRARY');
 $library ~~ s/\.a$//;

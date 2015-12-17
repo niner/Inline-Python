@@ -10,12 +10,9 @@ class Build is Panda::Builder {
     }
 
     method build($dir) {
-        my Str $blib = "$dir/blib";
-        rm_rf($blib);
-        mkpath("$blib/lib/Inline");
-        mkpath("$blib/lib/../resources");
+        mkdir "$dir/resources" unless "$dir/resources".IO.e;
 
-        my %vars = get-vars("$blib/lib");
+        my %vars = get-vars($dir);
         %vars<INCLUDEPY> = get_config_var('INCLUDEPY');
         my $library = get_config_var('LIBRARY');
         $library ~~ s/\.a$//;
