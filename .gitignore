@@ -1,3 +1,5 @@
 .prove
 lib/Inline/pyhelper.so
 Makefile
+lib/.precomp
+resources

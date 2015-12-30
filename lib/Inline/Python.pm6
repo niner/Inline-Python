@@ -519,6 +519,10 @@ role PythonParent[$package, $class] {
     );
 }
 
+method default_python {
+    $default_python //= self.new;
+}
+
 BEGIN {
     PythonObject.^add_fallback(-> $, $ { True },
         method ($name) {
@@ -536,4 +540,9 @@ BEGIN {
         );
     }
     PythonObject.^compose;
+}
+
+multi sub EVAL(Cool $code, Str :$lang where { ($lang // '') eq 'Python' }, PseudoStash :$context) is export {
+    state $py = ::("Inline::Python").default_python;
+    $py.run($code);
 }
