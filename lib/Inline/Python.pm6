@@ -520,7 +520,7 @@ role PythonParent[$package, $class] {
 }
 
 method default_python {
-  $default_python //= self.new;
+    $default_python //= self.new;
 }
 
 BEGIN {
@@ -543,13 +543,6 @@ BEGIN {
 }
 
 multi sub EVAL(Cool $code, Str :$lang where { ($lang // '') eq 'Python' }, PseudoStash :$context) is export {
-    state $py;
-    unless $py {
-        {
-            my $compunit := $*REPO.need(CompUnit::DependencySpecification.new(:short-name<Inline::Python>));
-            GLOBAL.WHO.merge-symbols($compunit.handle.globalish-package.WHO);
-        }
-        $py = ::("Inline::Python").default_python;
-    }
+    state $py = ::("Inline::Python").default_python;
     $py.run($code);
 }
