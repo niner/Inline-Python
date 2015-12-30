@@ -48,13 +48,13 @@ class ObjectKeeper {
     }
 }
 
-sub py_init_python(&call_object (Int, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method (Int, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
+sub py_init_python(&call_object (int32, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method (int32, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
     { ... }
     native(&py_init_python);
 sub py_init_perl6object()
     { ... }
     native(&py_init_perl6object);
-sub py_eval(Str, Int)
+sub py_eval(Str, int32)
     returns OpaquePointer { ... }
     native(&py_eval);
 sub py_instance_check(OpaquePointer)
@@ -88,9 +88,9 @@ sub py_is_none(OpaquePointer)
     returns int32 { ... }
     native(&py_is_none);
 sub py_int_as_long(OpaquePointer)
-    returns Int { ... }
+    returns int32 { ... }
     native(&py_int_as_long);
-sub py_int_to_py(Int)
+sub py_int_to_py(int32)
     returns OpaquePointer { ... }
     native(&py_int_to_py);
 sub py_float_as_double(OpaquePointer)
@@ -106,24 +106,24 @@ sub py_string_as_string(OpaquePointer)
     returns Str { ... }
     native(&py_string_as_string);
 sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
-    returns Int { ... }
+    returns int32 { ... }
     native(&py_string_to_buf);
-sub py_str_to_py(Int, Str)
+sub py_str_to_py(int32, Str)
     returns OpaquePointer { ... }
     native(&py_str_to_py);
-sub py_buf_to_py(Int, Blob)
+sub py_buf_to_py(int32, Blob)
     returns OpaquePointer { ... }
     native(&py_buf_to_py);
-sub py_tuple_new(Int)
+sub py_tuple_new(int32)
     returns OpaquePointer { ... }
     native(&py_tuple_new);
-sub py_tuple_set_item(OpaquePointer, Int, OpaquePointer)
+sub py_tuple_set_item(OpaquePointer, int32, OpaquePointer)
     { ... }
     native(&py_tuple_set_item);
-sub py_list_new(Int)
+sub py_list_new(int32)
     returns OpaquePointer { ... }
     native(&py_list_new);
-sub py_list_set_item(OpaquePointer, Int, OpaquePointer)
+sub py_list_set_item(OpaquePointer, int32, OpaquePointer)
     { ... }
     native(&py_list_set_item);
 sub py_dict_new()
@@ -142,9 +142,9 @@ sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
 sub py_sequence_length(OpaquePointer)
-    returns int { ... }
+    returns int32 { ... }
     native(&py_sequence_length);
-sub py_sequence_get_item(OpaquePointer, int)
+sub py_sequence_get_item(OpaquePointer, int32)
     returns OpaquePointer { ... }
     native(&py_sequence_get_item);
 sub py_mapping_items(OpaquePointer)
@@ -309,7 +309,7 @@ multi method p6_to_py(Any:D $value, OpaquePointer $inst = OpaquePointer) {
 method !setup_arguments(@args) {
     my $len = @args.elems;
     my $tuple = py_tuple_new($len);
-    loop (my Int $i = 0; $i < $len; $i = $i + 1) {
+    loop (my int32 $i = 0; $i < $len; $i = $i + 1) {
         py_tuple_set_item($tuple, $i, self.p6_to_py(@args[$i]));
     }
     return $tuple;
@@ -419,7 +419,7 @@ method upgrade_parent_object(PythonObject $parent, PythonParent $obj) {
 method BUILD {
     $default_python = self;
 
-    &!call_object = sub (Int $index, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+    &!call_object = sub (int32 $index, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
         my $p6obj = $objects.get($index);
         my \retvals = $p6obj(|self.py_array_to_array($args));
         return self.p6_to_py(retvals);
@@ -430,7 +430,7 @@ method BUILD {
             }
         }
     }
-    &!call_method = sub (Int $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+    &!call_method = sub (int32 $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
         my $p6obj = $objects.get($index);
         my \retvals = $p6obj."$name"(|self.py_array_to_array($args));
         return self.p6_to_py(retvals);
