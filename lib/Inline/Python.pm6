@@ -542,7 +542,12 @@ BEGIN {
     PythonObject.^compose;
 }
 
-multi sub EVAL(Cool $code, Str :$lang where { ($lang // '') eq 'Python' }, PseudoStash :$context) is export {
-    state $py = ::("Inline::Python").default_python;
-    $py.run($code);
+multi sub EVAL(
+        Str $code,
+        Str :$lang where { ($lang // '') eq 'Python' },
+        PseudoStash :$context,
+        :$mode = 'eval') is export {
+    my $py = Inline::Python.default_python;
+    CATCH { note $_ }
+    $py.run($code, |($mode eq 'eval' ?? :eval !! :file));
 }
