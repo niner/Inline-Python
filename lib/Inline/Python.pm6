@@ -8,12 +8,9 @@ has &!call_method;
 use NativeCall;
 
 sub native(Sub $sub) {
-    my $so = $*VM.config<dll>;
-    $so ~~ s!^.*\%s!pyhelper!;
-
-    my Str $path = %?RESOURCES{$so}.Str;
+    my Str $path = %?RESOURCES<libraries/pyhelper>.Str;
     unless $path {
-        die "unable to find $so";
+        die "unable to find pyhelper library";
     }
     trait_mod:<is>($sub, :native($path));
 }

@@ -10,8 +10,6 @@ class Build is Panda::Builder {
     }
 
     method build($dir) {
-        mkdir "$dir/resources" unless "$dir/resources".IO.e;
-
         my %vars = get-vars($dir);
         %vars<INCLUDEPY> = get_config_var('INCLUDEPY');
         my $library = get_config_var('LIBRARY');
@@ -19,7 +17,10 @@ class Build is Panda::Builder {
         $library ~~ s/^lib//;
         %vars<LIBRARYPY> = $library;
         %vars<LIBPLPY> = get_config_var('LIBPL');
-        process-makefile($dir, %vars);
+        %vars<pyhelper> = $*VM.platform-library-name('pyhelper'.IO);
+        mkdir "$dir/resources" unless "$dir/resources".IO.e;
+        mkdir "$dir/resources/libraries" unless "$dir/resources/libraries".IO.e;
+        process-makefile('.', %vars);
 
         my $goback = $*CWD;
         chdir($dir);

@@ -13,7 +13,9 @@ $library ~~ s/\.a$//;
 $library ~~ s/^lib//;
 %vars<LIBRARYPY> = $library;
 %vars<LIBPLPY> = get_config_var('LIBPL');
+%vars<pyhelper> = $*VM.platform-library-name('pyhelper'.IO);
 mkdir 'resources' unless 'resources'.IO.e;
+mkdir 'resources/libraries' unless 'resources/libraries'.IO.e;
 process-makefile('.', %vars);
 shell(%vars<MAKE>);
 
