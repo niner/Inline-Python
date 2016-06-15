@@ -6,7 +6,7 @@ use LibraryMake;
 
 class Build is Panda::Builder {
     sub get_config_var(Str $name) {
-        return chomp(qqx/python -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('$name'));"/);
+        return chomp(qqx/python2 -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('$name'));"/);
     }
 
     method build($dir) {

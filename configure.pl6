@@ -3,7 +3,7 @@ use v6;
 use LibraryMake;
 
 sub get_config_var(Str $name) {
-    return chomp(qqx/python -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('$name'));"/);
+    return chomp(qqx/python2 -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('$name'));"/);
 }
 
 my %vars = get-vars('.');
