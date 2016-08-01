@@ -4,6 +4,8 @@ Inline::Python
 
 Master (released) branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=master)](https://travis-ci.org/awwaiid/Inline-Python)
 
+Develop branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=develop)](https://travis-ci.org/awwaiid/Inline-Python)
+
 # SYNOPSIS
 
 ```
