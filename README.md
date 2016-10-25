@@ -2,6 +2,10 @@
 
 Inline::Python
 
+Master (released) branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=master)](https://travis-ci.org/awwaiid/Inline-Python)
+
+Develop branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=develop)](https://travis-ci.org/awwaiid/Inline-Python)
+
 # SYNOPSIS
 
 ```
@@ -17,7 +21,17 @@ Module for executing Python code and accessing Python libraries from Perl 6.
 # BUILDING
 
 You will need a Python built with the -fPIC option (position independent
-code). Most distributions build their Python that way.
+code). Most distributions build their Python that way. To do this with pyenv,
+use something like:
+
+```
+    PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.12
+    pyenv global 2.7.12
+    pyenv rehash
+```
+
+With a python in your path, then build:
+
 
 ```
     perl6 configure.pl6

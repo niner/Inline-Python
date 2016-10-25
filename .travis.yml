@@ -1,11 +1,18 @@
 branches:
   except:
     - gh-pages
-language: perl6
 sudo: false
-perl6:
-  - latest
+language: perl6
+perl6: 2016.07
+before_install:
+  - curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+  - export PATH="$HOME/.pyenv/bin:$PATH"
+  - eval "$(pyenv init -)"
+  - eval "$(pyenv virtualenv-init - >/dev/null)"
+  - PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.12
+  - pyenv global 2.7.12
+  - pyenv rehash
 install:
-  - rakudobrew build-panda
+  - rakudobrew build panda
   - panda installdeps .
   - perl6 configure.pl6

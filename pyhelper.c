@@ -25,7 +25,7 @@ void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyOb
 
 PyObject *perl6object;
 
-void py_init_perl6object() {
+void py_init_perl6object(void) {
     PyObject *main_module = PyImport_AddModule("__main__");
     PyObject *globals = PyModule_GetDict(main_module);
     perl6object = PyDict_GetItemString(globals, "Perl6Object");
@@ -160,7 +160,7 @@ void py_list_set_item(PyObject *list, int i, PyObject *item) {
     PyList_SetItem(list, i, item);
 }
 
-PyObject *py_dict_new() {
+PyObject *py_dict_new(void) {
     return PyDict_New();
 }
 
@@ -168,7 +168,7 @@ void py_dict_set_item(PyObject *dict, PyObject *key, PyObject *item) {
     PyDict_SetItem(dict, key, item);
 }
 
-PyObject *py_none() {
+PyObject *py_none(void) {
     Py_INCREF(Py_None);
     return Py_None;
 }

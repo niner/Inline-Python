@@ -6,7 +6,7 @@ clean:
 	rm %DESTDIR%/resources/libraries/%pyhelper%
 
 %DESTDIR%/resources/libraries/%pyhelper%: pyhelper.c
-	%CC% pyhelper.c -Wall -I"%INCLUDEPY%" -L"%LIBPLPY%" -l%LIBRARYPY% -shared -o %DESTDIR%/resources/libraries/%pyhelper% %CCSHARED% -g
+	%CC% pyhelper.c %cflags% %ldflags% -shared -fPIC -o %DESTDIR%/resources/libraries/%pyhelper%
 
 test: all
 	prove -e 'perl6 -Ilib' t
