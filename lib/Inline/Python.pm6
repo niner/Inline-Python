@@ -540,7 +540,7 @@ BEGIN {
 }
 
 multi sub EVAL(
-        Str $code,
+        Cool $code,
         Str :$lang where { ($lang // '') eq 'Python' },
         PseudoStash :$context,
         :$mode = 'eval') is export {
