@@ -2,9 +2,7 @@
 
 Inline::Python
 
-Master (released) branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=master)](https://travis-ci.org/awwaiid/Inline-Python)
-
-Develop branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?branch=develop)](https://travis-ci.org/awwaiid/Inline-Python)
+[![Build Status](https://travis-ci.org/niner/Inline-Python.svg?branch=master)](https://travis-ci.org/niner/Inline-Python)
 
 # SYNOPSIS
 
@@ -12,6 +10,9 @@ Develop branch [![Build Status](https://travis-ci.org/awwaiid/Inline-Python.svg?
     use Inline::Python;
     my $py = Inline::Python.new();
     $py.run('print "hello world"');
+
+    # Or
+    say EVAL('1+3', :lang<Python>);
 ```
 
 # DESCRIPTION
