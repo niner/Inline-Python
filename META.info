@@ -1,4 +1,5 @@
 {
+    "perl" : "6.*",
     "name" : "Inline::Python",
     "version" : "0.1",
     "author" : "github:niner",
