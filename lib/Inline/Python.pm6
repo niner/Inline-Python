@@ -45,134 +45,134 @@ class ObjectKeeper {
     }
 }
 
-sub py_init_python(&call_object (int32, OpaquePointer, OpaquePointer --> OpaquePointer), &call_method (int32, Str, OpaquePointer, OpaquePointer --> OpaquePointer))
+sub py_init_python(&call_object (int32, Pointer, Pointer --> Pointer), &call_method (int32, Str, Pointer, Pointer --> Pointer))
     { ... }
     native(&py_init_python);
 sub py_init_perl6object()
     { ... }
     native(&py_init_perl6object);
 sub py_eval(Str, int32)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_eval);
-sub py_instance_check(OpaquePointer)
+sub py_instance_check(Pointer)
     returns int32 { ... }
     native(&py_instance_check);
-sub py_is_instance(OpaquePointer, OpaquePointer)
+sub py_is_instance(Pointer, Pointer)
     returns int32 { ... }
     native(&py_is_instance);
-sub py_int_check(OpaquePointer)
+sub py_int_check(Pointer)
     returns int32 { ... }
     native(&py_int_check);
-sub py_float_check(OpaquePointer)
+sub py_float_check(Pointer)
     returns int32 { ... }
     native(&py_float_check);
-sub py_unicode_check(OpaquePointer)
+sub py_unicode_check(Pointer)
     returns int32 { ... }
     native(&py_unicode_check);
-sub py_string_check(OpaquePointer)
+sub py_string_check(Pointer)
     returns int32 { ... }
     native(&py_string_check);
-sub py_sequence_check(OpaquePointer)
+sub py_sequence_check(Pointer)
     returns int32 { ... }
     native(&py_sequence_check);
-sub py_mapping_check(OpaquePointer)
+sub py_mapping_check(Pointer)
     returns int32 { ... }
     native(&py_mapping_check);
-sub py_callable_check(OpaquePointer)
+sub py_callable_check(Pointer)
     returns int32 { ... }
     native(&py_callable_check);
-sub py_is_none(OpaquePointer)
+sub py_is_none(Pointer)
     returns int32 { ... }
     native(&py_is_none);
-sub py_int_as_long(OpaquePointer)
+sub py_int_as_long(Pointer)
     returns int32 { ... }
     native(&py_int_as_long);
 sub py_int_to_py(int32)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_int_to_py);
-sub py_float_as_double(OpaquePointer)
+sub py_float_as_double(Pointer)
     returns num64 { ... }
     native(&py_float_as_double);
 sub py_float_to_py(num64)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_float_to_py);
-sub py_unicode_as_utf8_string(OpaquePointer)
-    returns OpaquePointer { ... }
+sub py_unicode_as_utf8_string(Pointer)
+    returns Pointer { ... }
     native(&py_unicode_as_utf8_string);
-sub py_string_as_string(OpaquePointer)
+sub py_string_as_string(Pointer)
     returns Str { ... }
     native(&py_string_as_string);
-sub py_string_to_buf(OpaquePointer, CArray[CArray[int8]])
+sub py_string_to_buf(Pointer, CArray[CArray[int8]])
     returns int32 { ... }
     native(&py_string_to_buf);
 sub py_str_to_py(int32, Str)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_str_to_py);
 sub py_buf_to_py(int32, Blob)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_buf_to_py);
 sub py_tuple_new(int32)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_tuple_new);
-sub py_tuple_set_item(OpaquePointer, int32, OpaquePointer)
+sub py_tuple_set_item(Pointer, int32, Pointer)
     { ... }
     native(&py_tuple_set_item);
 sub py_list_new(int32)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_list_new);
-sub py_list_set_item(OpaquePointer, int32, OpaquePointer)
+sub py_list_set_item(Pointer, int32, Pointer)
     { ... }
     native(&py_list_set_item);
 sub py_dict_new()
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_dict_new);
-sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
+sub py_dict_set_item(Pointer, Pointer, Pointer)
     { ... }
     native(&py_dict_set_item);
-sub py_call_function(Str, Str, OpaquePointer)
-    returns OpaquePointer { ... }
+sub py_call_function(Str, Str, Pointer)
+    returns Pointer { ... }
     native(&py_call_function);
 sub py_call_function_kw(Str, Str, Pointer, Pointer)
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_call_function_kw);
-sub py_call_static_method(Str, Str, Str, OpaquePointer)
-    returns OpaquePointer { ... }
+sub py_call_static_method(Str, Str, Str, Pointer)
+    returns Pointer { ... }
     native(&py_call_static_method);
 sub py_call_static_method_kw(Str, Str, Str, Pointer, Pointer)
     returns Pointer { ... }
     native(&py_call_static_method_kw);
-sub py_call_method(OpaquePointer, Str, OpaquePointer)
-    returns OpaquePointer { ... }
+sub py_call_method(Pointer, Str, Pointer)
+    returns Pointer { ... }
     native(&py_call_method);
 sub py_call_method_kw(Pointer, Str, Pointer, Pointer)
     returns Pointer { ... }
     native(&py_call_method_kw);
-sub py_sequence_length(OpaquePointer)
+sub py_sequence_length(Pointer)
     returns int32 { ... }
     native(&py_sequence_length);
-sub py_sequence_get_item(OpaquePointer, int32)
-    returns OpaquePointer { ... }
+sub py_sequence_get_item(Pointer, int32)
+    returns Pointer { ... }
     native(&py_sequence_get_item);
-sub py_mapping_items(OpaquePointer)
-    returns OpaquePointer { ... }
+sub py_mapping_items(Pointer)
+    returns Pointer { ... }
     native(&py_mapping_items);
 sub py_none()
-    returns OpaquePointer { ... }
+    returns Pointer { ... }
     native(&py_none);
-sub py_dec_ref(OpaquePointer)
+sub py_dec_ref(Pointer)
     { ... }
     native(&py_dec_ref);
-sub py_inc_ref(OpaquePointer)
+sub py_inc_ref(Pointer)
     { ... }
     native(&py_inc_ref);
-sub py_getattr(OpaquePointer, Str)
-    returns OpaquePointer { ... }
+sub py_getattr(Pointer, Str)
+    returns Pointer { ... }
     native(&py_getattr);
-sub py_fetch_error(CArray[OpaquePointer])
+sub py_fetch_error(CArray[Pointer])
     { ... }
     native(&py_fetch_error);
 
-method py_dec_ref(OpaquePointer $obj) {
+method py_dec_ref(Pointer $obj) {
     py_dec_ref($obj);
 }
 
@@ -182,7 +182,7 @@ sub free_p6_object(Int $index) {
     $objects.free($index);
 }
 
-method py_array_to_array(OpaquePointer $py_array) {
+method py_array_to_array(Pointer $py_array) {
     my $array = [];
     my $len = py_sequence_length($py_array);
     for 0..^$len {
@@ -193,7 +193,7 @@ method py_array_to_array(OpaquePointer $py_array) {
     return $array;
 }
 
-method py_dict_to_hash(OpaquePointer $py_dict) {
+method py_dict_to_hash(Pointer $py_dict) {
     my %hash;
     my $py_items = py_mapping_items($py_dict);
     my $items = self.py_to_p6($py_items);
@@ -202,9 +202,9 @@ method py_dict_to_hash(OpaquePointer $py_dict) {
     return %hash;
 }
 
-my OpaquePointer $perl6object;
+my Pointer $perl6object;
 
-method py_to_p6(OpaquePointer $value) {
+method py_to_p6(Pointer $value) {
     return Any unless defined $value;
     if py_is_none($value) {
         return Any;
@@ -258,27 +258,27 @@ method py_to_p6(OpaquePointer $value) {
     return Any;
 }
 
-multi method p6_to_py(Int:D $value) returns OpaquePointer {
+multi method p6_to_py(Int:D $value) returns Pointer {
     py_int_to_py($value);
 }
 
-multi method p6_to_py(Num:D $value) returns OpaquePointer {
+multi method p6_to_py(Num:D $value) returns Pointer {
     py_float_to_py($value);
 }
 
-multi method p6_to_py(Rat:D $value) returns OpaquePointer {
+multi method p6_to_py(Rat:D $value) returns Pointer {
     py_float_to_py($value.Num);
 }
 
-multi method p6_to_py(Str:D $value) returns OpaquePointer {
+multi method p6_to_py(Str:D $value) returns Pointer {
     py_str_to_py($value.encode('UTF-8').bytes, $value);
 }
 
-multi method p6_to_py(blob8:D $value) returns OpaquePointer {
+multi method p6_to_py(blob8:D $value) returns Pointer {
     py_buf_to_py($value.elems, $value);
 }
 
-multi method p6_to_py(Positional:D $value) returns OpaquePointer {
+multi method p6_to_py(Positional:D $value) returns Pointer {
     my $array = py_list_new($value.elems);
     for @$value.kv -> $i, $item {
         py_list_set_item($array, $i, self.p6_to_py($item));
@@ -286,7 +286,7 @@ multi method p6_to_py(Positional:D $value) returns OpaquePointer {
     return $array;
 }
 
-multi method p6_to_py(Hash:D $value) returns OpaquePointer {
+multi method p6_to_py(Hash:D $value) returns Pointer {
     my $dict = py_dict_new();
     for %$value -> $item {
         py_dict_set_item($dict, self.p6_to_py($item.key), self.p6_to_py($item.value));
@@ -298,15 +298,15 @@ multi method p6_to_py(PythonObject:D $value) {
     $value.ptr;
 }
 
-multi method p6_to_py(OpaquePointer:D $value) {
+multi method p6_to_py(Pointer:D $value) {
     return $value;
 }
 
-multi method p6_to_py(Any:U $value) returns OpaquePointer {
+multi method p6_to_py(Any:U $value) returns Pointer {
     py_none();
 }
 
-multi method p6_to_py(Any:D $value, OpaquePointer $inst = OpaquePointer) {
+multi method p6_to_py(Any:D $value, Pointer $inst = Pointer) {
     my $index = $objects.keep($value);
 
     return py_call_function('__main__', 'Perl6Object', self!setup_arguments([$index]));
@@ -335,8 +335,8 @@ method !setup_arguments_kw(@args, %args) {
 }
 
 method handle_python_exception() is hidden-from-backtrace {
-    my @exception := CArray[OpaquePointer].new();
-    @exception[$_] = OpaquePointer for ^4;
+    my @exception := CArray[Pointer].new();
+    @exception[$_] = Pointer for ^4;
     py_fetch_error(@exception);
     my $ex_type    = @exception[0];
     my $ex_message = @exception[3];
@@ -377,7 +377,7 @@ multi method invoke(Str $pkg, Str $class, Str $method, *@args, *%args) {
     py_dec_ref($py_retval);
     return retval;
 }
-multi method invoke(OpaquePointer $obj, Str $method, *@args, *%args) {
+multi method invoke(Pointer $obj, Str $method, *@args, *%args) {
     my $py_retval = %args
         ?? py_call_method_kw($obj, $method, |self!setup_arguments_kw(@args, %args))
         !! py_call_method(   $obj, $method, self!setup_arguments(@args));
@@ -386,7 +386,7 @@ multi method invoke(OpaquePointer $obj, Str $method, *@args, *%args) {
     py_dec_ref($py_retval);
     return retval;
 }
-multi method invoke(PythonParent $p6obj, OpaquePointer $obj, Str $method, *@args) {
+multi method invoke(PythonParent $p6obj, Pointer $obj, Str $method, *@args) {
     my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
     self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
@@ -394,7 +394,7 @@ multi method invoke(PythonParent $p6obj, OpaquePointer $obj, Str $method, *@args
     return retval;
 }
 
-method py_getattr(OpaquePointer $obj, Str $name) {
+method py_getattr(Pointer $obj, Str $name) {
     return py_getattr($obj, $name);
 }
 
@@ -444,25 +444,25 @@ method upgrade_parent_object(PythonObject $parent, PythonParent $obj) {
 method BUILD {
     $default_python = self;
 
-    &!call_object = sub (int32 $index, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+    &!call_object = sub (int32 $index, Pointer $args, Pointer $err) returns Pointer {
         my $p6obj = $objects.get($index);
         my \retvals = $p6obj(|self.py_array_to_array($args));
         return self.p6_to_py(retvals);
         CATCH {
             default {
-                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_.Str());
-                return OpaquePointer;
+                nativecast(CArray[Pointer], $err)[0] = self.p6_to_py($_.Str());
+                return Pointer;
             }
         }
     }
-    &!call_method = sub (int32 $index, Str $name, OpaquePointer $args, OpaquePointer $err) returns OpaquePointer {
+    &!call_method = sub (int32 $index, Str $name, Pointer $args, Pointer $err) returns Pointer {
         my $p6obj = $objects.get($index);
         my \retvals = $p6obj."$name"(|self.py_array_to_array($args));
         return self.p6_to_py(retvals);
         CATCH {
             default {
-                nativecast(CArray[OpaquePointer], $err)[0] = self.p6_to_py($_.Str());
-                return OpaquePointer;
+                nativecast(CArray[Pointer], $err)[0] = self.p6_to_py($_.Str());
+                return Pointer;
             }
         }
     }
@@ -502,7 +502,7 @@ method BUILD {
 }
 
 class PythonObject {
-    has OpaquePointer $.ptr;
+    has Pointer $.ptr;
     has Inline::Python $.python;
 
     method sink() { self }
@@ -517,7 +517,7 @@ class PythonObject {
 
     method DESTROY {
         $!python.py_dec_ref($!ptr) if $!ptr;
-        $!ptr = OpaquePointer;
+        $!ptr = Pointer;
     }
 }
 
