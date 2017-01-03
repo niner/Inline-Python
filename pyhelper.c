@@ -301,6 +301,21 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
     return py_retval;
 }
 
+PyObject *py_call_method_kw(PyObject *obj, char *name, PyObject *args, PyObject *kw) {
+    PyObject *method = PyObject_GetAttrString(obj, name);
+    if (method == NULL) {
+        py_raise_missing_method(obj, name);
+        goto cleanup;
+    }
+    PyObject *py_retval = PyObject_Call(method, args, kw);
+    Py_DECREF(method);
+
+    cleanup:
+    Py_DECREF(args);
+
+    return py_retval;
+}
+
 static PyObject *perl6_call(PyObject *self, PyObject *args) {
     PyObject * const index  = PyTuple_GetItem(args, 0);
     PyObject * const params = PyTuple_GetItem(args, 1);

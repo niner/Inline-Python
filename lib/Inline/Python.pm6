@@ -144,6 +144,9 @@ sub py_call_static_method_kw(Str, Str, Str, Pointer, Pointer)
 sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
+sub py_call_method_kw(Pointer, Str, Pointer, Pointer)
+    returns Pointer { ... }
+    native(&py_call_method_kw);
 sub py_sequence_length(OpaquePointer)
     returns int32 { ... }
     native(&py_sequence_length);
@@ -374,8 +377,10 @@ multi method invoke(Str $pkg, Str $class, Str $method, *@args, *%args) {
     py_dec_ref($py_retval);
     return retval;
 }
-multi method invoke(OpaquePointer $obj, Str $method, *@args) {
-    my $py_retval = py_call_method($obj, $method, self!setup_arguments(@args));
+multi method invoke(OpaquePointer $obj, Str $method, *@args, *%args) {
+    my $py_retval = %args
+        ?? py_call_method_kw($obj, $method, |self!setup_arguments_kw(@args, %args))
+        !! py_call_method(   $obj, $method, self!setup_arguments(@args));
     self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
@@ -547,7 +552,7 @@ BEGIN {
     PythonObject.^add_fallback(-> $, $ { True },
         method ($name) {
             -> \self, |args {
-                $.python.invoke($.ptr, $name, args.list);
+                $.python.invoke($.ptr, $name, |args.list, |args.hash);
             }
         }
     );
