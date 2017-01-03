@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..12";
+say "1..13";
 
 my $py = Inline::Python.new();
 $py.run('
@@ -19,11 +19,11 @@ def test_int_params(a, b):
         print "not ok 2 - int params";
     return;
 
-def test_str_params(a, b):
+def test_str_params(a, b, i):
     if a == "Hello" and b == "Python":
-        print "ok 3 - str params";
+        print "ok %i - str params" % i;
     else:
-        print "not ok 3 - str params";
+        print "not ok %i - str params" % i;
     return;
 
 def test_int_retval():
@@ -72,7 +72,7 @@ class Foo:
 
 $py.call('__main__', 'test');
 $py.call('__main__', 'test_int_params', 2, 1);
-$py.call('__main__', 'test_str_params', 'Hello', 'Python');
+$py.call('__main__', 'test_str_params', 'Hello', 'Python', 3);
 
 $py.run('
 import sys
@@ -144,5 +144,7 @@ if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
 else {
     say "not ok 12 - Passing Python objects back from Perl 6";
 }
+
+$py.call('__main__', 'test_str_params', :i(13), :a<Hello>, :b<Python>);
 
 # vim: ft=perl6

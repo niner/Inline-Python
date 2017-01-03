@@ -205,6 +205,27 @@ PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     return py_retval;
 }
 
+PyObject *py_call_function_kw(char *pkg, char *name, PyObject *args, PyObject *kw) {
+    PyObject * const mod       = PyImport_AddModule(pkg);
+    PyObject * const dict      = PyModule_GetDict(mod);
+    PyObject * const func      = PyMapping_GetItemString(dict, name);
+    PyObject *py_retval = NULL;
+
+    if (func == NULL) {
+        PyErr_Format(PyExc_NameError, "name '%s' is not defined", name);
+        goto cleanup;
+    }
+
+    py_retval = PyObject_Call(func, args, kw);
+
+    Py_DECREF(func);
+    cleanup:
+    Py_DECREF(args);
+    Py_DECREF(kw);
+
+    return py_retval;
+}
+
 void py_fetch_error(PyObject **exception) {
     /* ex_type, ex_value, ex_trace, ex_message */
     PyErr_Fetch(&exception[0], &exception[1], &exception[2]);

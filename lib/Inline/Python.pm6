@@ -132,6 +132,9 @@ sub py_dict_set_item(OpaquePointer, OpaquePointer, OpaquePointer)
 sub py_call_function(Str, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_function);
+sub py_call_function_kw(Str, Str, Pointer, Pointer)
+    returns OpaquePointer { ... }
+    native(&py_call_function_kw);
 sub py_call_static_method(Str, Str, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_static_method);
@@ -312,6 +315,19 @@ method !setup_arguments(@args) {
     return $tuple;
 }
 
+method !setup_arguments_kw(@args, %args) {
+    my $len = @args.elems;
+    my $tuple = py_tuple_new($len);
+    loop (my int32 $i = 0; $i < $len; $i = $i + 1) {
+        py_tuple_set_item($tuple, $i, self.p6_to_py(@args[$i]));
+    }
+    my $dict = py_dict_new();
+    for %args -> $item {
+        py_dict_set_item($dict, self.p6_to_py($item.key), self.p6_to_py($item.value));
+    }
+    return $tuple, $dict;
+}
+
 method handle_python_exception() is hidden-from-backtrace {
     my @exception := CArray[OpaquePointer].new();
     @exception[$_] = OpaquePointer for ^4;
@@ -337,8 +353,10 @@ multi method run($python, :$file) {
     self.py_to_p6($res);
 }
 
-method call(Str $package, Str $function, *@args) {
-    my $py_retval = py_call_function($package, $function, self!setup_arguments(@args));
+method call(Str $package, Str $function, *@args, *%args) {
+    my $py_retval = %args
+        ?? py_call_function_kw($package, $function, |self!setup_arguments_kw(@args, %args))
+        !! py_call_function($package, $function, self!setup_arguments(@args));
     self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     return retval;
