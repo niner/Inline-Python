@@ -13,6 +13,7 @@ $py.run(q:heredoc/PYTHON/);
     PYTHON
 
 is($py.invoke('__main__', 'Foo', 'test', 1), 1);
+is($py.invoke('__main__', 'Foo', 'test', x => 1), 1);
 
 done-testing;
 

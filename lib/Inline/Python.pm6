@@ -138,6 +138,9 @@ sub py_call_function_kw(Str, Str, Pointer, Pointer)
 sub py_call_static_method(Str, Str, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_static_method);
+sub py_call_static_method_kw(Str, Str, Str, Pointer, Pointer)
+    returns Pointer { ... }
+    native(&py_call_static_method_kw);
 sub py_call_method(OpaquePointer, Str, OpaquePointer)
     returns OpaquePointer { ... }
     native(&py_call_method);
@@ -362,8 +365,10 @@ method call(Str $package, Str $function, *@args, *%args) {
     return retval;
 }
 
-multi method invoke(Str $pkg, Str $class, Str $method, *@args) {
-    my $py_retval = py_call_static_method($pkg, $class, $method, self!setup_arguments(@args));
+multi method invoke(Str $pkg, Str $class, Str $method, *@args, *%args) {
+    my $py_retval = %args
+        ?? py_call_static_method_kw($pkg, $class, $method, |self!setup_arguments_kw(@args, %args))
+        !! py_call_static_method(   $pkg, $class, $method, self!setup_arguments(@args));
     self.handle_python_exception();
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
