@@ -54,6 +54,10 @@ PyObject *py_eval(const char* p, int type) {
     return py_result;
 }
 
+void py_import(char *module) {
+    PyImport_ImportModule(module);
+}
+
 int py_instance_check(PyObject *obj) {
     return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj));
 }

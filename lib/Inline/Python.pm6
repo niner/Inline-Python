@@ -54,6 +54,9 @@ sub py_init_perl6object()
 sub py_eval(Str, int32)
     returns Pointer { ... }
     native(&py_eval);
+sub py_import(Str)
+    { ... }
+    native(&py_import);
 sub py_instance_check(Pointer)
     returns int32 { ... }
     native(&py_instance_check);
@@ -392,6 +395,10 @@ multi method invoke(PythonParent $p6obj, Pointer $obj, Str $method, *@args) {
     my \retval = self.py_to_p6($py_retval);
     py_dec_ref($py_retval);
     return retval;
+}
+
+method import(Str $module) {
+    py_import($module);
 }
 
 method py_getattr(Pointer $obj, Str $name) {
