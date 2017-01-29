@@ -13,6 +13,9 @@ Inline::Python
 
     # Or
     say EVAL('1+3', :lang<Python>);
+
+    use string:from<Python>;
+    say string::capwords('foo bar'); # prints "Foo Bar"
 ```
 
 # DESCRIPTION
