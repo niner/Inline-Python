@@ -55,6 +55,7 @@ sub py_eval(Str, int32)
     returns Pointer { ... }
     native(&py_eval);
 sub py_import(Str)
+    returns Pointer
     { ... }
     native(&py_import);
 sub py_instance_check(Pointer)
@@ -72,6 +73,9 @@ sub py_float_check(Pointer)
 sub py_unicode_check(Pointer)
     returns int32 { ... }
     native(&py_unicode_check);
+sub py_ascii_string_check(Pointer)
+    returns int32 { ... }
+    native(&py_ascii_string_check);
 sub py_string_check(Pointer)
     returns int32 { ... }
     native(&py_string_check);
@@ -171,6 +175,9 @@ sub py_inc_ref(Pointer)
 sub py_getattr(Pointer, Str)
     returns Pointer { ... }
     native(&py_getattr);
+sub py_dir(Pointer)
+    returns Pointer { ... }
+    native(&py_dir);
 sub py_fetch_error(CArray[Pointer])
     { ... }
     native(&py_fetch_error);
@@ -186,14 +193,14 @@ sub free_p6_object(Int $index) {
 }
 
 method py_array_to_array(Pointer $py_array) {
-    my $array = [];
+    my @array;
     my $len = py_sequence_length($py_array);
     for 0..^$len {
         my $item = py_sequence_get_item($py_array, $_);
-        $array[$_] = self.py_to_p6($item);
+        @array[$_] = self.py_to_p6($item);
         py_dec_ref($item);
     }
-    return $array;
+    return @array;
 }
 
 method py_dict_to_hash(Pointer $py_dict) {
@@ -397,12 +404,35 @@ multi method invoke(PythonParent $p6obj, Pointer $obj, Str $method, *@args) {
     return retval;
 }
 
-method import(Str $module) {
-    py_import($module);
-}
+method import(Str $name) {
+    my $py_module = py_import($name);
+    my $module    = self.py_to_p6($py_module);
 
-method py_getattr(Pointer $obj, Str $name) {
-    return py_getattr($obj, $name);
+    my $class := Metamodel::ClassHOW.new_type(name => $name);
+
+    my @parts = $name.split('.');
+    my $inner = @parts.pop;
+    my $stash := Stash.new;
+    my $ns := $stash;
+    for @parts {
+        $ns{$_} := Metamodel::PackageHOW.new_type(name => $_);
+        $ns := $ns{$_}.WHO;
+    }
+    $ns{$inner} := $class;
+
+    my @attrs     = self.py_to_p6(py_dir($py_module));
+    for @attrs -> $attr {
+        my $attr_name = $attr ~~ Blob ?? $attr.decode('latin-1') !! $attr;
+        my $value = py_getattr($py_module, $attr_name);
+        if py_callable_check($value) {
+            # create wrapper function in package
+            $class.WHO{"&$attr_name"} := sub (*@args) {
+                self.call($name, $attr_name, @args.list);
+            }
+        }
+    }
+
+    return CompUnit::Handle.from-unit($stash);
 }
 
 method create_subclass(Str $package, Str $class, Str $subclass_name) {
@@ -603,7 +633,7 @@ CompUnit::RepositoryRegistry.use-repository(
                 );
                 return CompUnit.new(
                     :short-name($spec.short-name),
-                    :handle(CompUnit::Handle.from-unit(Stash.new)),
+                    :$handle,
                     :repo(self),
                     :repo-id($spec.short-name),
                     :from($spec.from),

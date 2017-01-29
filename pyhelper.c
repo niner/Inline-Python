@@ -54,8 +54,8 @@ PyObject *py_eval(const char* p, int type) {
     return py_result;
 }
 
-void py_import(char *module) {
-    PyImport_ImportModule(module);
+PyObject *py_import(char *module) {
+    return PyImport_ImportModule(module);
 }
 
 int py_instance_check(PyObject *obj) {
@@ -76,6 +76,18 @@ int py_float_check(PyObject *obj) {
 
 int py_unicode_check(PyObject *obj) {
     return PyUnicode_Check(obj);
+}
+
+int py_ascii_string_check(PyObject *obj) {
+    char *buf;
+    Py_ssize_t length, i;
+    if (! PyString_Check(obj))
+        return 0;
+    PyString_AsStringAndSize(obj, &buf, &length);
+    for (i = 0; i < length; i++)
+        if (buf[i] < 0) /* signed char! */
+            return 0;
+    return 1;
 }
 
 int py_string_check(PyObject *obj) {
@@ -187,6 +199,10 @@ void py_inc_ref(PyObject *obj) {
 
 PyObject *py_getattr(PyObject *obj, char *name) {
     return PyObject_GetAttrString(obj, name);
+}
+
+PyObject *py_dir(PyObject *obj) {
+    return PyObject_Dir(obj);
 }
 
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
