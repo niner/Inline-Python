@@ -583,3 +583,48 @@ multi sub EVAL(
     CATCH { note $_ }
     $py.run($code, |($mode eq 'eval' ?? :eval !! :file));
 }
+
+CompUnit::RepositoryRegistry.use-repository(
+    class :: does CompUnit::Repository {
+        method need(
+            CompUnit::DependencySpecification $spec,
+            CompUnit::PrecompilationRepository $precomp?,
+        )
+            returns CompUnit:D
+        {
+            if $spec.from eq 'Python' {
+                my $python = Inline::Python.default_python;
+
+                if $*RAKUDO_MODULE_DEBUG -> $RMD {
+                    $RMD("Loading {$spec.short-name} via Inline::Python");
+                }
+                my $handle := $python.import(
+                    $spec.short-name,
+                );
+                return CompUnit.new(
+                    :short-name($spec.short-name),
+                    :handle(CompUnit::Handle.from-unit(Stash.new)),
+                    :repo(self),
+                    :repo-id($spec.short-name),
+                    :from($spec.from),
+                );
+            }
+
+            return self.next-repo.need($spec, |($precomp ?? $precomp !! ())) if self.next-repo;
+            X::CompUnit::UnsatisfiedDependency.new(:specification($spec)).throw;
+        }
+
+        method loaded() {
+            []
+        }
+
+        method id() {
+            'Python'
+        }
+
+        method path-spec() {
+            'python#'
+        }
+    }.new(),
+    :current($*REPO),
+)
