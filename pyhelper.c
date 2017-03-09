@@ -1,4 +1,6 @@
 #include "Python.h"
+#include "datetime.h"
+
 
 void initperl6(void);
 
@@ -21,6 +23,7 @@ void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyOb
     initperl6();
 
     PySys_SetArgv(_python_argc, _python_argv);  /* Tk needs this */
+    PyDateTime_IMPORT;
 }
 
 PyObject *perl6object;
@@ -59,7 +62,7 @@ PyObject *py_import(char *module) {
 }
 
 int py_instance_check(PyObject *obj) {
-    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj));
+    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj) || PyDate_Check(obj));
 }
 
 int py_is_instance(PyObject *obj, PyObject *class) {
