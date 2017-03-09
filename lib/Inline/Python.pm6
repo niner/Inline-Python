@@ -417,6 +417,7 @@ method import(Str $name) {
     my @attrs     = self.py_to_p6(py_dir($py_module));
     for @attrs -> $attr {
         my $attr_name = $attr ~~ Blob ?? $attr.decode('latin-1') !! $attr;
+        next unless $attr_name;
         my $value = py_getattr($py_module, $attr_name);
         if py_callable_check($value) {
             # create wrapper function in package

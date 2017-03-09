@@ -198,6 +198,8 @@ void py_inc_ref(PyObject *obj) {
 }
 
 PyObject *py_getattr(PyObject *obj, char *name) {
+    if (name == NULL)
+        return NULL;
     return PyObject_GetAttrString(obj, name);
 }
 
