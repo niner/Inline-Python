@@ -427,7 +427,39 @@ method import(Str $name) {
         }
     }
 
-    return CompUnit::Handle.from-unit($stash);
+    my &export := sub EXPORT(*@args) {
+        $*W.do_pragma(Any, 'precompilation', False, []);
+        Map.new
+    };
+
+    my $compunit-handle = class :: is CompUnit::Handle {
+        has &!EXPORT;
+        use nqp;
+        submethod fill(Stash $unit, &EXPORT) {
+            nqp::p6bindattrinvres(
+                nqp::p6bindattrinvres(
+                  nqp::create($?CLASS),
+                  CompUnit::Handle,
+                  '$!unit',
+                  nqp::decont($unit),
+                ),
+                $?CLASS,
+                '&!EXPORT',
+                &EXPORT,
+            )
+        }
+        method export-package() returns Stash {
+            Stash.new
+        }
+        method export-sub() returns Callable {
+            &!EXPORT
+        }
+    }.fill(
+        $stash,
+        &export,
+    );
+
+    return $compunit-handle;
 }
 
 method create_subclass(Str $package, Str $class, Str $subclass_name) {

@@ -1,12 +1,12 @@
 #!/usr/bin/env perl6
 
 use v6;
-use Inline::Python;
+use lib 't/lib';
 use Test;
-
+use Precomp;
 use string:from<Python>;
 
-my $py = Inline::Python.default_python;
+#my $py = Inline::Python.default_python;
 is(string::capwords('foo bar'), 'Foo Bar');
 
 #use sys:from<Python>;
