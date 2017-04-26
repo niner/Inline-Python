@@ -1,5 +1,6 @@
 {
     "name" : "Inline::Python",
+    "license" : "Artistic-2.0",
     "version" : "0.3",
     "author" : "github:niner",
     "description" : "Use Python code and libraries in a Perl 6 program",
