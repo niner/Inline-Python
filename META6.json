@@ -1,13 +1,14 @@
 {
-    "name" : "Inline::Python",
-    "license" : "Artistic-2.0",
-    "version" : "0.3",
-    "author" : "github:niner",
+    "name"        : "Inline::Python",
+    "license"     : "Artistic-2.0",
+    "version"     : "0.3",
+    "perl"        : "6.c",
+    "author"      : "github:niner",
     "description" : "Use Python code and libraries in a Perl 6 program",
-    "depends" : [ "LibraryMake" ],
-    "provides" : {
+    "depends"     : [ "LibraryMake" ],
+    "provides"    : {
         "Inline::Python" : "lib/Inline/Python.pm6"
     },
-    "resources" : [ "libraries/pyhelper" ],
-    "source-url" : "git://github.com/niner/Inline-Python.git"
+    "resources"   : [ "libraries/pyhelper" ],
+    "source-url"  : "git://github.com/niner/Inline-Python.git"
 }

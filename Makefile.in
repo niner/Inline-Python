@@ -4,6 +4,10 @@ all: %DESTDIR%/resources/libraries/%pyhelper%
 
 clean:
 	rm %DESTDIR%/resources/libraries/%pyhelper%
+	rm -rf %DESTDIR%/lib/.precomp %DESTDIR%/t/lib/.precomp
+
+manifest:
+	find . -name .git -prune -o -name .gitignore -prune -o -name .prove -prune -o -name .travis.yml -prune -o -name Makefile -prune -o -type f -print | sort > MANIFEST
 
 %DESTDIR%/resources/libraries/%pyhelper%: pyhelper.c
 	%CC% pyhelper.c %cflags% %ldflags% -shared -fPIC -o %DESTDIR%/resources/libraries/%pyhelper%
