@@ -13,6 +13,6 @@ before_install:
   - pyenv global 2.7.12
   - pyenv rehash
 install:
-  - rakudobrew build panda
-  - panda installdeps .
+  - rakudobrew build zef
+  - zef --deps-only install .
   - perl6 configure.pl6
