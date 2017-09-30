@@ -5,7 +5,7 @@
     "perl"        : "6.c",
     "author"      : "github:niner",
     "description" : "Use Python code and libraries in a Perl 6 program",
-    "depends"     : [ "LibraryMake" ],
+    "depends"     : [ "LibraryMake", "Panda::Common" ],
     "provides"    : {
         "Inline::Python" : "lib/Inline/Python.pm6"
     },
