@@ -1,14 +1,34 @@
 {
+    "meta-version": 1,
     "name"        : "Inline::Python",
     "license"     : "Artistic-2.0",
     "version"     : "0.3",
     "perl"        : "6.c",
-    "author"      : "github:niner",
+    "auth"        : "cpan:NINE",
     "description" : "Use Python code and libraries in a Perl 6 program",
-    "depends"     : [ "LibraryMake", "Panda::Common" ],
+    "depends" : {
+        "build": {
+            "requires": [
+                "python2-config:from<bin>"
+            ]
+        },
+        "runtime": {
+            "requires": [
+                "python:from<native>"
+            ]
+        }
+    },
     "provides"    : {
         "Inline::Python" : "lib/Inline/Python.pm6"
     },
     "resources"   : [ "libraries/pyhelper" ],
-    "source-url"  : "git://github.com/niner/Inline-Python.git"
+    "source-url"  : "git://github.com/niner/Inline-Python.git",
+    "builder": "MakeFromJSON",
+    "build": {
+        "makefile-variables": {
+            "pyhelper": {"resource": "libraries/pyhelper"},
+            "cflags": {"run": ["python2-config", "--cflags"]},
+            "ldflags": {"run": ["python2-config", "--ldflags"]}
+        }
+    }
 }

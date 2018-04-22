@@ -1,23 +1,11 @@
-use v6;
-use Panda::Common;
-use Panda::Builder;
-use Shell::Command;
-use LibraryMake;
-
-class Build is Panda::Builder {
-    method build($dir) {
-      my %vars = get-vars('.');
-
-      %vars<pyhelper> = $*VM.platform-library-name('pyhelper'.IO);
-      %vars<cflags> = chomp qx/python2-config --cflags/;
-      %vars<ldflags> = chomp qx/python2-config --ldflags/;
-
-      mkdir 'resources' unless 'resources'.IO.e;
-      mkdir 'resources/libraries' unless 'resources/libraries'.IO.e;
-
-      process-makefile('.', %vars);
-      shell(%vars<MAKE>);
+# This generic Build.pm is for installation on old zef versions only.
+# It can go away once users have upgraded zef.
+class Build {
+    method build($workdir) {
+        my $meta-text = $workdir.IO.child('META6.json').slurp;
+        my $meta = Rakudo::Internals::JSON.from-json($meta-text);
+        if $meta<builder>:exists {
+            (require ::("Distribution::Builder::$meta<builder>")).new(:$meta).build;
+        }
     }
 }
-
-# vim: ft=perl6
