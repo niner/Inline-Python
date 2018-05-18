@@ -36,8 +36,30 @@
     "build": {
         "makefile-variables": {
             "pyhelper": {"resource": "libraries/pyhelper"},
-            "cflags": {"run": ["python2-config", "--cflags"]},
-            "ldflags": {"run": ["python2-config", "--ldflags"]}
+            "cflags": {
+                "run": [
+                    {
+                        "by-distro.name" : {
+                            "macosx" : "python2.7-config",
+                            "debian" : "python2.7-config",
+                            "" : "python2-config"
+                        }
+                    },
+                    "--cflags"
+                ]
+            },
+            "ldflags": {
+                "run": [
+                    {
+                        "by-distro.name" : {
+                            "macosx" : "python2.7-config",
+                            "debian" : "python2.7-config",
+                            "" : "python2-config"
+                        }
+                    },
+                    "--ldflags"
+                ]
+            }
         }
     }
 }
