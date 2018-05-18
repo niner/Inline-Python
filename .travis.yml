@@ -14,6 +14,4 @@ before_install:
   - pyenv rehash
   - git clone https://github.com/ugexe/zef.git $HOME/zef
 install:
-  - perl6 -I $HOME/zef/lib $HOME/zef/bin/zef --deps-only install .
-  - perl6 configure.pl6
-  - make
+  - perl6 -I $HOME/zef/lib $HOME/zef/bin/zef install . --debug
