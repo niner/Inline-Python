@@ -32,7 +32,7 @@
     },
     "resources"   : [ "libraries/pyhelper" ],
     "source-url"  : "git://github.com/niner/Inline-Python.git",
-    "builder": "MakeFromJSON",
+    "builder": "Distribution::Builder::MakeFromJSON",
     "build": {
         "makefile-variables": {
             "pyhelper": {"resource": "libraries/pyhelper"},
