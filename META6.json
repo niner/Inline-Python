@@ -9,6 +9,7 @@
     "depends" : {
         "build": {
             "requires": [
+                "Distribution::Builder::MakeFromJSON",
                 {
                     "from" : "bin",
                     "name" : {
