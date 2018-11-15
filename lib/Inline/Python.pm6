@@ -656,7 +656,7 @@ CompUnit::RepositoryRegistry.use-repository(
                     $RMD("Loading {$spec.short-name} via Inline::Python");
                 }
                 my $handle := $python.import(
-                    $spec.short-name,
+                    $spec.short-name.subst(/\:\:/, '.'),
                 );
                 return CompUnit.new(
                     :short-name($spec.short-name),
