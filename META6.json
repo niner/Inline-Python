@@ -2,7 +2,7 @@
     "meta-version": 1,
     "name"        : "Inline::Python",
     "license"     : "Artistic-2.0",
-    "version"     : "0.3",
+    "version"     : "0.4",
     "perl"        : "6.c",
     "auth"        : "cpan:NINE",
     "authors"     : [ "Stefan Seifert" ],
@@ -15,9 +15,9 @@
                     "from" : "bin",
                     "name" : {
                         "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
+                            "macosx" : "python3-config",
+                            "debian" : "python3-config",
+                            "" : "python3-config"
                         }
                     }
                 }
@@ -25,7 +25,7 @@
         },
         "runtime": {
             "requires": [
-                "python2.7:from<native>"
+                "python3:from<native>"
             ]
         }
     },
@@ -40,25 +40,13 @@
             "pyhelper": {"resource": "libraries/pyhelper"},
             "cflags": {
                 "run": [
-                    {
-                        "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
-                        }
-                    },
+                    "python3-config",
                     "--cflags"
                 ]
             },
             "ldflags": {
                 "run": [
-                    {
-                        "by-distro.name" : {
-                            "macosx" : "python2.7-config",
-                            "debian" : "python2.7-config",
-                            "" : "python2-config"
-                        }
-                    },
+                    "python3-config",
                     "--ldflags"
                 ]
             }

@@ -67,10 +67,7 @@ sub py_float_check(Pointer)
 sub py_unicode_check(Pointer)
     is native($pyhelper)
     returns int32 { ... }
-sub py_ascii_string_check(Pointer)
-    is native($pyhelper)
-    returns int32 { ... }
-sub py_string_check(Pointer)
+sub py_buffer_check(Pointer)
     is native($pyhelper)
     returns int32 { ... }
 sub py_sequence_check(Pointer)
@@ -242,7 +239,7 @@ method py_to_p6(Pointer $value) {
         py_dec_ref($string);
         return $p6_str;
     }
-    elsif py_string_check($value) {
+    elsif py_buffer_check($value) {
         my $string_ptr = CArray[CArray[int8]].new;
         $string_ptr[0] = CArray[int8];
         my $len = py_string_to_buf($value, $string_ptr);
@@ -535,9 +532,9 @@ method BUILD {
 
     self.run(q:heredoc/PYTHON/);
         import signal
-        import perl6
         from functools import partial
         signal.signal(signal.SIGINT, signal.SIG_DFL)
+        import perl6
         class Perl6Object:
             def __init__(self, index):
                 self.index = index
