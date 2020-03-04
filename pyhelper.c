@@ -211,8 +211,8 @@ PyObject *py_dir(PyObject *obj) {
 
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     PyObject * const mod       = PyImport_AddModule(pkg);
-    PyObject * const dict      = PyModule_GetDict(mod);
-    PyObject * const func      = PyMapping_GetItemString(dict, name);
+    PyObject * const dict      = mod ? PyModule_GetDict(mod) : NULL;
+    PyObject * const func      = dict ? PyMapping_GetItemString(dict, name) : NULL;
     PyObject *py_retval = NULL;
 
     if (func == NULL) {
