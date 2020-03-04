@@ -2,7 +2,7 @@
 #include "datetime.h"
 
 
-PyMODINIT_FUNC PyInit_perl6(void);
+void PyInit_perl6(void);
 
 PyObject *(*call_p6_object)(int, PyObject *, PyObject **);
 PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
@@ -368,7 +368,7 @@ static PyMethodDef perl_functions[] = {
     {NULL,              NULL}                /* sentinel */
 };
 
-PyMODINIT_FUNC PyInit_perl6(void){
+void PyInit_perl6(void){
     /* Create the module and add the functions */
     static struct PyModuleDef perl_module = {
         PyModuleDef_HEAD_INIT,
