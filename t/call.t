@@ -9,21 +9,21 @@ my $py = Inline::Python.new();
 $py.run('
 
 def test():
-    print "ok 1 - executing a parameterless function without return value";
+    print("ok 1 - executing a parameterless function without return value")
     return;
 
 def test_int_params(a, b):
     if a == 2 and b == 1:
-        print "ok 2 - int params";
+        print("ok 2 - int params")
     else:
-        print "not ok 2 - int params";
+        print("not ok 2 - int params")
     return;
 
 def test_str_params(a, b, i):
     if a == "Hello" and b == "Python":
-        print "ok %i - str params" % i;
+        print("ok %i - str params" % i)
     else:
-        print "not ok %i - str params" % i;
+        print("not ok %i - str params" % i)
     return;
 
 def test_int_retval():
