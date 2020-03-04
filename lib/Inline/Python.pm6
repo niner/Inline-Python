@@ -7,7 +7,7 @@ has &!call_method;
 
 use NativeCall;
 
-my constant $pyhelper = %?RESOURCES<libraries/pyhelper>.Str;
+my constant $pyhelper = %?RESOURCES<libraries/pyhelper>;
 
 class PythonObject { ... }
 role PythonParent { ... }
