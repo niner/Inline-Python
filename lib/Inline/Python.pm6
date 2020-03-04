@@ -534,7 +534,6 @@ method BUILD {
         import signal
         from functools import partial
         signal.signal(signal.SIGINT, signal.SIG_DFL)
-        import perl6
         class Perl6Object:
             def __init__(self, index):
                 self.index = index
