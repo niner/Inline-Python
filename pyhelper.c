@@ -96,7 +96,7 @@ int py_unicode_check(PyObject *obj) {
 }
 
 int py_buffer_check(PyObject *obj) {
-    return PyObject_CheckBuffer(obj);
+    return PyBytes_Check(obj);
 }
 
 int py_sequence_check(PyObject *obj) {
