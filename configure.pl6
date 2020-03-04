@@ -4,7 +4,7 @@ use LibraryMake;
 
 my %vars = get-vars('.');
 
-my $python-config = ('python2-config', 'python2.7-config').first({run($_, '--help', :err).exitcode == 0});
+my $python-config = 'python3-config';
 
 %vars<pyhelper> = $*VM.platform-library-name('pyhelper'.IO);
 %vars<cflags> = chomp qqx/$python-config --cflags/;
