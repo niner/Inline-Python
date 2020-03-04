@@ -1,6 +1,18 @@
 #include "Python.h"
 #include "datetime.h"
 
+#if PY_MAJOR_VERSION < 3
+#define PY_INSTANCE_CHECK(obj) PyInstance_Check((obj))
+#define PY_IS_STRING(obj) (PyString_Check((obj)) || PyUnicode_Check((obj)))
+#else
+#define PY_INSTANCE_CHECK(obj) 0
+#define PY_IS_STRING(obj) (PyBytes_Check((obj)) || PyUnicode_Check((obj)))
+#endif
+#define PY_IS_OBJECT(obj) \
+    (((obj)->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) \
+        || PY_INSTANCE_CHECK((obj)) \
+        || (! PY_IS_STRING((obj)) && PyMapping_Check((obj)) && ((obj)->ob_type != &PyDict_Type) && \
+            ((obj)->ob_type != &PyList_Type) && ((obj)->ob_type != &PyTuple_Type)) )
 
 void PyInit_perl6(void);
 
@@ -61,7 +73,7 @@ PyObject *py_import(char *module) {
 }
 
 int py_instance_check(PyObject *obj) {
-    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || !PyType_Check(obj) || PyDate_Check(obj));
+    return PY_IS_OBJECT(obj);
 }
 
 int py_is_instance(PyObject *obj, PyObject *class) {
