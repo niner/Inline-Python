@@ -94,9 +94,6 @@ sub py_float_as_double(Pointer)
 sub py_float_to_py(num64)
     is native($pyhelper)
     returns Pointer { ... }
-sub py_unicode_as_utf8_string(Pointer)
-    is native($pyhelper)
-    returns Pointer { ... }
 sub py_string_as_string(Pointer)
     is native($pyhelper)
     returns Str { ... }
@@ -217,9 +214,8 @@ method py_to_p6(Pointer $value) {
         return py_float_as_double($value);
     }
     elsif py_unicode_check($value) {
-        my $string = py_unicode_as_utf8_string($value) or return;
-        my $p6_str = py_string_as_string($string);
-        py_dec_ref($string);
+        my $p6_str = py_string_as_string($value);
+        py_dec_ref($value);
         return $p6_str;
     }
     elsif py_buffer_check($value) {
@@ -344,7 +340,7 @@ method handle_python_exception() is hidden-from-backtrace {
     if $ex_type {
         my $message = self.py_to_p6($ex_message);
         @exception[$_] and py_dec_ref(@exception[$_]) for ^4;
-        die $message.decode('UTF-8');
+        die $message;
     }
 }
 
@@ -547,9 +543,9 @@ method BUILD {
                 if not hasattr(self, '__p6_getattr__'):
                     self.__p6_getattr__ = perl6.invoke(self.index, 'can', [u"__getattr__"])
                 if len(self.__p6_getattr__):
-                    return self.__p6_getattr__[0](self, attr.decode('UTF-8'))
+                    return self.__p6_getattr__[0](self, attr)
                 else:
-                    candidates = perl6.invoke(self.index, 'can', [attr.decode('UTF-8')])
+                    candidates = perl6.invoke(self.index, 'can', [attr])
                     if not len(candidates):
                         raise AttributeError(attr)
                     return partial(candidates[0], self)

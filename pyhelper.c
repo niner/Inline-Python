@@ -139,10 +139,6 @@ PyObject *py_buf_to_py(int len, char *buf) {
     return PyUnicode_FromStringAndSize(buf, len);
 }
 
-PyObject *py_unicode_as_utf8_string(PyObject *obj) {
-    return PyUnicode_AsUTF8String(obj);
-}
-
 char *py_string_as_string(PyObject *obj) {
     return PyUnicode_AsUTF8(obj);
 }
