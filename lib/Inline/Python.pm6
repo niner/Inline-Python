@@ -210,23 +210,6 @@ method py_to_p6(Pointer $value) {
     if py_is_none($value) {
         return Any;
     }
-    elsif py_instance_check($value) or py_callable_check($value) {
-        if py_is_instance($value, $perl6object) {
-            return $objects.get(
-                py_int_as_long(
-                    py_call_method(
-                        $value,
-                        'get_perl6_object',
-                        self!setup_arguments([])
-                    )
-                )
-            );
-        }
-        else {
-            py_inc_ref($value);
-            return PythonObject.new(python => self, ptr => $value);
-        }
-    }
     elsif py_int_check($value) {
         return py_int_as_long($value);
     }
@@ -255,6 +238,23 @@ method py_to_p6(Pointer $value) {
     }
     elsif py_mapping_check($value) {
         return self.py_dict_to_hash($value);
+    }
+    elsif py_instance_check($value) or py_callable_check($value) {
+        if py_is_instance($value, $perl6object) {
+            return $objects.get(
+                py_int_as_long(
+                    py_call_method(
+                        $value,
+                        'get_perl6_object',
+                        self!setup_arguments([])
+                    )
+                )
+            );
+        }
+        else {
+            py_inc_ref($value);
+            return PythonObject.new(python => self, ptr => $value);
+        }
     }
     return Any;
 }
