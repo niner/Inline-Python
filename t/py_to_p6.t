@@ -16,15 +16,9 @@ is-deeply $py.run('{u"a": 1, u"b": {u"c": 3}}', :eval), {a => 1, b => {c => 3}};
 is-deeply $py.run('[1, {u"b": {u"c": 3}}]', :eval), [1, {b => {c => 3}}];
 ok $py.run('None', :eval) === Any, 'py None maps to p6 Any';
 
-is $py.run('
-# coding=utf-8
-u"Püthon"
-', :eval), 'Püthon';
+is $py.run('"Püthon"', :eval), 'Püthon', 'Unicode string';
 
-is $py.run('
-# coding=utf-8
-u"Püthon".encode("latin-1")
-', :eval).decode('latin-1'), 'Püthon';
+is $py.run('"Püthon".encode("latin-1")', :eval).decode('latin-1'), 'Püthon', 'Buffer';
 
 done-testing;
 
