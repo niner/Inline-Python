@@ -12,7 +12,7 @@ from logging import warn
 def test(obj):
     try:
         obj.ok(1)
-    except Exception, e:
+    except Exception as e:
         warn(e)
     for i in range(100):
         retval = obj.test('Perl6')
