@@ -144,9 +144,9 @@ char *py_string_as_string(PyObject *obj) {
 }
 
 Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
-    Py_ssize_t length;
+    Py_ssize_t length = 0;
 
-    PyBytes_AsStringAndSize(obj, *buf, &length);
+    PyBytes_AsStringAndSize(obj, buf, &length);
     return length;
 }
 
@@ -274,6 +274,7 @@ void py_raise_missing_method(PyObject *obj, char *name) {
 }
 
 PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject *args, PyObject *kw) {
+    PyObject *py_retval = NULL;
     PyObject * const mod  = PyImport_AddModule(pkg);
     PyObject * const dict = PyModule_GetDict(mod);
     PyObject * const obj  = PyMapping_GetItemString(dict, class);
@@ -282,7 +283,7 @@ PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject 
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_Call(method, args, kw);
+    py_retval = PyObject_Call(method, args, kw);
     Py_DECREF(method);
 
     cleanup:
@@ -293,6 +294,7 @@ PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject 
 }
 
 PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *args) {
+    PyObject *py_retval = NULL;
     PyObject * const mod  = PyImport_AddModule(pkg);
     PyObject * const dict = PyModule_GetDict(mod);
     PyObject * const obj  = PyMapping_GetItemString(dict, class);
@@ -301,7 +303,7 @@ PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *ar
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_CallObject(method, args);
+    py_retval = PyObject_CallObject(method, args);
     Py_DECREF(method);
 
     cleanup:
@@ -327,11 +329,12 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
 
 PyObject *py_call_method_kw(PyObject *obj, char *name, PyObject *args, PyObject *kw) {
     PyObject *method = PyObject_GetAttrString(obj, name);
+    PyObject * py_retval = NULL;
     if (method == NULL) {
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_Call(method, args, kw);
+    py_retval = PyObject_Call(method, args, kw);
     Py_DECREF(method);
 
     cleanup:
