@@ -5,7 +5,7 @@ use Inline::Python;
 
 use Test;
 
-plan 2;
+plan 3;
 
 my $py = Inline::Python.new;
 $py.run: 'import datetime';
