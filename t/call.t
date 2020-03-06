@@ -41,15 +41,14 @@ def test_mixed_retvals():
 def test_none(undef):
     return undef is None;
 
-import types
 def test_hash(h):
     return (
-        isinstance(h, types.DictType)
+        isinstance(h, dict)
         and len(h.keys()) == 2
         and "a" in h
         and "b" in h
         and h["a"] == 2
-        and isinstance(h["b"], types.DictType)
+        and isinstance(h["b"], dict)
         and isinstance(h["b"]["c"], list)
         and len(h["b"]["c"]) == 2
         and h["b"]["c"][0] == 4
