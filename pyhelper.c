@@ -136,7 +136,7 @@ PyObject *py_str_to_py(int len, char *str) {
 }
 
 PyObject *py_buf_to_py(int len, char *buf) {
-    return PyUnicode_FromStringAndSize(buf, len);
+    return PyBytes_FromStringAndSize(buf, len);
 }
 
 char *py_string_as_string(PyObject *obj) {
@@ -146,7 +146,7 @@ char *py_string_as_string(PyObject *obj) {
 Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
     Py_ssize_t length;
 
-    *buf = PyUnicode_AsUTF8AndSize(obj, &length);
+    PyBytes_AsStringAndSize(obj, *buf, &length);
     return length;
 }
 
