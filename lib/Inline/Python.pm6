@@ -97,9 +97,16 @@ sub py_float_to_py(num64)
 sub py_string_as_string(Pointer)
     is native($pyhelper)
     returns Str { ... }
-sub py_string_to_buf(Pointer, CArray[CArray[int8]])
+sub py_bytearray_from_py(Pointer)
+    is native($pyhelper)
+    returns Pointer { ... }
+sub py_size_from_bytearray(Pointer)
     is native($pyhelper)
     returns int32 { ... }
+sub py_contents_from_bytearray(Pointer)
+    is native($pyhelper)
+    returns CArray[int8] { ... }
+
 sub py_str_to_py(int32, Str)
     is native($pyhelper)
     returns Pointer { ... }
@@ -219,13 +226,14 @@ method py_to_p6(Pointer $value) {
         return $p6_str;
     }
     elsif py_buffer_check($value) {
-        my $string_ptr = CArray[CArray[int8]].new;
-        $string_ptr[0] = CArray[int8];
-        my $len = py_string_to_buf($value, $string_ptr);
+        my $bytearray = py_bytearray_from_py($value);
+        my Int $len = py_size_from_bytearray($bytearray);
+        my $carray = py_contents_from_bytearray($bytearray);
         my $buf = Buf.new;
         for 0..^$len {
-            $buf[$_] = $string_ptr[0][$_];
+            $buf[$_] = $carray[$_];
         }
+        py_dec_ref($bytearray);
         return $buf;
 
     }

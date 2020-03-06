@@ -135,19 +135,24 @@ PyObject *py_str_to_py(int len, char *str) {
     return PyUnicode_DecodeUTF8(str, len, "replace");
 }
 
+PyObject *py_bytearray_from_py(PyObject *obj) {
+    return PyByteArray_FromObject(obj);
+}
+
+Py_ssize_t py_size_from_bytearray(PyObject *obj) {
+    return PyByteArray_Size(obj);
+}
+
+char *py_contents_from_bytearray(PyObject *obj) {
+    return PyByteArray_AsString(obj);
+}
+
 PyObject *py_buf_to_py(int len, char *buf) {
     return PyBytes_FromStringAndSize(buf, len);
 }
 
 char *py_string_as_string(PyObject *obj) {
     return PyUnicode_AsUTF8(obj);
-}
-
-Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
-    Py_ssize_t length = 0;
-
-    PyBytes_AsStringAndSize(obj, buf, &length);
-    return length;
 }
 
 int py_sequence_length(PyObject *obj) {
