@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..13";
+say "1..12";
 
 my $py = Inline::Python.new();
 $py.run('
