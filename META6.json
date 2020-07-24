@@ -41,13 +41,15 @@
             "cflags": {
                 "run": [
                     "python3-config",
-                    "--cflags"
+                    "--cflags",
+		    "--embed"
                 ]
             },
             "ldflags": {
                 "run": [
                     "python3-config",
-                    "--ldflags"
+                    "--ldflags",
+		    "--embed"
                 ]
             }
         }
