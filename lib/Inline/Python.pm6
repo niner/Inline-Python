@@ -536,6 +536,7 @@ method BUILD {
 
     self.run(q:heredoc/PYTHON/);
         import signal
+        import perl6
         from functools import partial
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         class Perl6Object:

@@ -2,7 +2,7 @@
 #include "datetime.h"
 
 
-void PyInit_perl6(void);
+PyObject* PyInit_perl6(void);
 
 PyObject *(*call_p6_object)(int, PyObject *, PyObject **);
 PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
@@ -17,9 +17,8 @@ void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyOb
     call_p6_method = call_method;
 
     Py_SetProgramName(L"python");
+    PyImport_AppendInittab("perl6", &PyInit_perl6);
     Py_Initialize();
-
-    PyInit_perl6();
 
     PySys_SetArgv(_python_argc, _python_argv);  /* Tk needs this */
     PyDateTime_IMPORT;
@@ -372,7 +371,7 @@ static PyMethodDef perl_functions[] = {
     {NULL,              NULL}                /* sentinel */
 };
 
-void PyInit_perl6(void){
+PyObject* PyInit_perl6(void){
     /* Create the module and add the functions */
     static struct PyModuleDef perl_module = {
         PyModuleDef_HEAD_INIT,
@@ -385,5 +384,5 @@ void PyInit_perl6(void){
         NULL, /* m_clear */
         NULL /* m_free */
     };
-    (void) PyModule_Create(&perl_module);
+    return PyModule_Create(&perl_module);
 }
