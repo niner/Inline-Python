@@ -222,7 +222,6 @@ method py_to_p6(Pointer $value) {
     }
     elsif py_unicode_check($value) {
         my $p6_str = py_string_as_string($value);
-        py_dec_ref($value);
         return $p6_str;
     }
     elsif py_buffer_check($value) {
