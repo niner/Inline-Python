@@ -24,6 +24,10 @@ void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyOb
     PyDateTime_IMPORT;
 }
 
+int py_destroy_python() {
+    return Py_FinalizeEx();
+}
+
 PyObject *perl6object;
 
 void py_init_perl6object(void) {

@@ -3,7 +3,7 @@
 use v6;
 use Inline::Python;
 
-say "1..12";
+say "1..13";
 
 my $py = Inline::Python.new();
 $py.run('
@@ -143,6 +143,7 @@ if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
 else {
     say "not ok 12 - Passing Python objects back from Perl 6";
 }
+$*OUT.flush;
 
 $py.call('__main__', 'test_str_params', :i(13), :a<Hello>, :b<Python>);
 

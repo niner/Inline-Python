@@ -42,6 +42,9 @@ class ObjectKeeper {
 sub py_init_python(&call_object (int32, Pointer, Pointer --> Pointer), &call_method (int32, Str, Pointer, Pointer --> Pointer))
     is native($pyhelper)
     { ... }
+sub py_destroy_python(--> int32)
+    is native($pyhelper)
+    { ... }
 sub py_init_perl6object()
     is native($pyhelper)
     { ... }
@@ -639,6 +642,10 @@ multi sub EVAL(
     my $py = Inline::Python.default_python;
     CATCH { note $_ }
     $py.run($code, |($mode eq 'eval' ?? :eval !! :file));
+}
+
+END {
+    py_destroy_python;
 }
 
 CompUnit::RepositoryRegistry.use-repository(
