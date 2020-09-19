@@ -9,8 +9,8 @@ before_install:
   - export PATH="$HOME/.pyenv/bin:$PATH"
   - eval "$(pyenv init -)"
   - eval "$(pyenv virtualenv-init - >/dev/null)"
-  - PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.12
-  - pyenv global 2.7.12
+  - PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.7
+  - pyenv global 3.7
   - pyenv rehash
   - git clone https://github.com/ugexe/zef.git $HOME/zef
 install:
