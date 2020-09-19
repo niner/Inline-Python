@@ -22,11 +22,6 @@
                     }
                 }
             ]
-        },
-        "runtime": {
-            "requires": [
-                "python3:from<native>"
-            ]
         }
     },
     "provides"    : {
