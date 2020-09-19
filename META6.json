@@ -2,7 +2,7 @@
     "meta-version": 1,
     "name"        : "Inline::Python",
     "license"     : "Artistic-2.0",
-    "version"     : "0.4",
+    "version"     : "0.5",
     "perl"        : "6.c",
     "auth"        : "cpan:NINE",
     "authors"     : [ "Stefan Seifert" ],
