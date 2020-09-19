@@ -20,17 +20,17 @@ Inline::Python
 
 # DESCRIPTION
 
-Module for executing Python code and accessing Python libraries from Perl 6.
+Module for executing Python code and accessing Python libraries from Raku (formerly known as Perl 6).
 
 # BUILDING
 
-You will need a Python built with the -fPIC option (position independent
+You will need a Python 3 built with the -fPIC option (position independent
 code). Most distributions build their Python that way. To do this with pyenv,
 use something like:
 
 ```
-    PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.12
-    pyenv global 2.7.12
+    PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.7
+    pyenv global 3.7
     pyenv rehash
 ```
 
