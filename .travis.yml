@@ -5,7 +5,7 @@ sudo: false
 language: perl6
 perl6: latest
 before_install:
-  - curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+  - curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
   - export PATH="$HOME/.pyenv/bin:$PATH"
   - eval "$(pyenv init -)"
   - eval "$(pyenv virtualenv-init - >/dev/null)"
