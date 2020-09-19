@@ -2,7 +2,7 @@
 #include "datetime.h"
 
 
-void initperl6(void);
+PyObject* PyInit_perl6(void);
 
 PyObject *(*call_p6_object)(int, PyObject *, PyObject **);
 PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
@@ -10,20 +10,22 @@ PyObject *(*call_p6_method)(int, char * , PyObject *, PyObject **);
 void py_init_python(PyObject *(*call_object)(int, PyObject *, PyObject **), PyObject *(*call_method)(int, char * , PyObject *, PyObject **)) {
     /* sometimes Python needs to know about argc and argv to be happy */
     int _python_argc = 1;
-    char *_python_argv[] = {
-        "python",
-    };
+    wchar_t** _python_argv = PyMem_Malloc(sizeof(wchar_t*)* _python_argc);
+    _python_argv[0] = L"";
 
     call_p6_object = call_object;
     call_p6_method = call_method;
 
-    Py_SetProgramName("python");
+    Py_SetProgramName(L"python");
+    PyImport_AppendInittab("perl6", &PyInit_perl6);
     Py_Initialize();
-
-    initperl6();
 
     PySys_SetArgv(_python_argc, _python_argv);  /* Tk needs this */
     PyDateTime_IMPORT;
+}
+
+int py_destroy_python() {
+    return Py_FinalizeEx();
 }
 
 PyObject *perl6object;
@@ -53,7 +55,7 @@ PyObject *py_eval(const char* p, int type) {
             (type == 1)
             ? Py_file_input
             : Py_single_input;
-    py_result = PyRun_String(p, context, globals, locals);
+    py_result = PyRun_StringFlags(p, context, globals, locals, NULL);
     return py_result;
 }
 
@@ -62,15 +64,18 @@ PyObject *py_import(char *module) {
 }
 
 int py_instance_check(PyObject *obj) {
-    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || PyInstance_Check(obj) || PyDate_Check(obj));
+    return ((obj->ob_type->tp_flags & Py_TPFLAGS_HEAPTYPE) || !PyType_Check(obj) || PyDate_Check(obj));
 }
 
 int py_is_instance(PyObject *obj, PyObject *class) {
+    if (obj == NULL || class == NULL) {
+        return 0;
+    }
     return PyObject_IsInstance(obj, class);
 }
 
 int py_int_check(PyObject *obj) {
-    return PyInt_Check(obj);
+    return PyLong_Check(obj);
 }
 
 int py_float_check(PyObject *obj) {
@@ -81,20 +86,8 @@ int py_unicode_check(PyObject *obj) {
     return PyUnicode_Check(obj);
 }
 
-int py_ascii_string_check(PyObject *obj) {
-    char *buf;
-    Py_ssize_t length, i;
-    if (! PyString_Check(obj))
-        return 0;
-    PyString_AsStringAndSize(obj, &buf, &length);
-    for (i = 0; i < length; i++)
-        if (buf[i] < 0) /* signed char! */
-            return 0;
-    return 1;
-}
-
-int py_string_check(PyObject *obj) {
-    return PyString_Check(obj);
+int py_buffer_check(PyObject *obj) {
+    return PyBytes_Check(obj);
 }
 
 int py_sequence_check(PyObject *obj) {
@@ -114,7 +107,7 @@ int py_is_none(PyObject *obj) {
 }
 
 long py_int_as_long(PyObject *obj) {
-    return PyInt_AsLong(obj);
+    return PyLong_AsLong(obj);
 }
 
 double py_float_as_double(PyObject *obj) {
@@ -122,7 +115,7 @@ double py_float_as_double(PyObject *obj) {
 }
 
 PyObject *py_int_to_py(long num) {
-    return PyInt_FromLong(num);
+    return PyLong_FromLong(num);
 }
 
 PyObject *py_float_to_py(double num) {
@@ -133,22 +126,24 @@ PyObject *py_str_to_py(int len, char *str) {
     return PyUnicode_DecodeUTF8(str, len, "replace");
 }
 
-PyObject *py_buf_to_py(int len, char *buf) {
-    return PyString_FromStringAndSize(buf, len);
+PyObject *py_bytearray_from_py(PyObject *obj) {
+    return PyByteArray_FromObject(obj);
 }
 
-PyObject *py_unicode_as_utf8_string(PyObject *obj) {
-    return PyUnicode_AsUTF8String(obj);    /* new reference */
+Py_ssize_t py_size_from_bytearray(PyObject *obj) {
+    return PyByteArray_Size(obj);
+}
+
+char *py_contents_from_bytearray(PyObject *obj) {
+    return PyByteArray_AsString(obj);
+}
+
+PyObject *py_buf_to_py(int len, char *buf) {
+    return PyBytes_FromStringAndSize(buf, len);
 }
 
 char *py_string_as_string(PyObject *obj) {
-    return PyString_AsString(obj);
-}
-
-Py_ssize_t py_string_to_buf(PyObject *obj, char **buf) {
-    Py_ssize_t length;
-    PyString_AsStringAndSize(obj, buf, &length);
-    return length;
+    return PyUnicode_AsUTF8(obj);
 }
 
 int py_sequence_length(PyObject *obj) {
@@ -212,8 +207,8 @@ PyObject *py_dir(PyObject *obj) {
 
 PyObject *py_call_function(char *pkg, char *name, PyObject *args) {
     PyObject * const mod       = PyImport_AddModule(pkg);
-    PyObject * const dict      = PyModule_GetDict(mod);
-    PyObject * const func      = PyMapping_GetItemString(dict, name);
+    PyObject * const dict      = mod ? PyModule_GetDict(mod) : NULL;
+    PyObject * const func      = dict ? PyMapping_GetItemString(dict, name) : NULL;
     PyObject *py_retval = NULL;
 
     if (func == NULL) {
@@ -264,7 +259,7 @@ void py_raise_missing_method(PyObject *obj, char *name) {
     PyObject *class = PyObject_GetAttrString(obj, "__class__");
     if (class) {
         PyObject *class_name = PyObject_GetAttrString(class, "__name__");
-        char *c_class_name = PyString_AsString(class_name);
+        char *c_class_name = PyUnicode_AsUTF8(class_name);
         PyErr_Format(PyExc_NameError, "%s instance has no attribute '%s'", c_class_name, name);
         Py_DECREF(class_name);
         Py_DECREF(class);
@@ -275,6 +270,7 @@ void py_raise_missing_method(PyObject *obj, char *name) {
 }
 
 PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject *args, PyObject *kw) {
+    PyObject *py_retval = NULL;
     PyObject * const mod  = PyImport_AddModule(pkg);
     PyObject * const dict = PyModule_GetDict(mod);
     PyObject * const obj  = PyMapping_GetItemString(dict, class);
@@ -283,7 +279,7 @@ PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject 
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_Call(method, args, kw);
+    py_retval = PyObject_Call(method, args, kw);
     Py_DECREF(method);
 
     cleanup:
@@ -294,6 +290,7 @@ PyObject *py_call_static_method_kw(char *pkg, char *class, char *name, PyObject 
 }
 
 PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *args) {
+    PyObject *py_retval = NULL;
     PyObject * const mod  = PyImport_AddModule(pkg);
     PyObject * const dict = PyModule_GetDict(mod);
     PyObject * const obj  = PyMapping_GetItemString(dict, class);
@@ -302,7 +299,7 @@ PyObject *py_call_static_method(char *pkg, char *class, char *name, PyObject *ar
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_CallObject(method, args);
+    py_retval = PyObject_CallObject(method, args);
     Py_DECREF(method);
 
     cleanup:
@@ -328,11 +325,12 @@ PyObject *py_call_method(PyObject *obj, char *name, PyObject *args) {
 
 PyObject *py_call_method_kw(PyObject *obj, char *name, PyObject *args, PyObject *kw) {
     PyObject *method = PyObject_GetAttrString(obj, name);
+    PyObject * py_retval = NULL;
     if (method == NULL) {
         py_raise_missing_method(obj, name);
         goto cleanup;
     }
-    PyObject *py_retval = PyObject_Call(method, args, kw);
+    py_retval = PyObject_Call(method, args, kw);
     Py_DECREF(method);
 
     cleanup:
@@ -346,7 +344,7 @@ static PyObject *perl6_call(PyObject *self, PyObject *args) {
     PyObject * const params = PyTuple_GetItem(args, 1);
     PyObject * error = NULL;
 
-    PyObject *retval = call_p6_object(PyInt_AsLong(index), params, &error);
+    PyObject *retval = call_p6_object(PyLong_AsLong(index), params, &error);
     if (error != NULL) {
         PyErr_SetObject(PyExc_Exception, error);
         return NULL;
@@ -361,10 +359,9 @@ static PyObject *perl6_invoke(PyObject *self, PyObject *args) {
     PyObject * error = NULL;
 
     Py_ssize_t length;
-    char * buf;
-    PyString_AsStringAndSize(name, &buf, &length);
+    char * buf = PyUnicode_AsUTF8AndSize(name, &length);
 
-    PyObject *retval = call_p6_method(PyInt_AsLong(index), buf, params, &error);
+    PyObject *retval = call_p6_method(PyLong_AsLong(index), buf, params, &error);
     if (error != NULL) {
         PyErr_SetObject(PyExc_Exception, error);
         return NULL;
@@ -378,26 +375,18 @@ static PyMethodDef perl_functions[] = {
     {NULL,              NULL}                /* sentinel */
 };
 
-PyMODINIT_FUNC initperl6(void){
+PyObject* PyInit_perl6(void){
     /* Create the module and add the functions */
-#if PY_MAJOR_VERSION >= 3
     static struct PyModuleDef perl_module = {
         PyModuleDef_HEAD_INIT,
         "perl6",
         "perl6 -- Access a Perl 6 interpreter transparently",
         -1, /* m_size */
         perl_functions, /* m_methods */
-        0, /* m_reload */
-        0, /* m_traverse */
-        0, /* m_clear */
-        0 /* m_free */
+        NULL, /* m_slots */
+        NULL, /* m_traverse */
+        NULL, /* m_clear */
+        NULL /* m_free */
     };
-    (void) PyModule_Create(&perl_module);
-#else
-    (void) Py_InitModule3(
-        "perl6",
-        perl_functions,
-        "perl6 -- Access a Perl interpreter transparently"
-    );
-#endif
+    return PyModule_Create(&perl_module);
 }

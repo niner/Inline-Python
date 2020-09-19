@@ -4,11 +4,11 @@ use LibraryMake;
 
 my %vars = get-vars('.');
 
-my $python-config = ('python2-config', 'python2.7-config').first({run($_, '--help', :err).exitcode == 0});
+my $python-config = 'python3-config';
 
-%vars<pyhelper> = $*VM.platform-library-name('pyhelper'.IO);
-%vars<cflags> = chomp qqx/$python-config --cflags/;
-%vars<ldflags> = chomp qqx/$python-config --ldflags/;
+%vars<pyhelper> = 'resources'.IO.child('libraries').child($*VM.platform-library-name('pyhelper'.IO)).Str;
+%vars<cflags> = chomp qqx/$python-config --cflags --embed/;
+%vars<ldflags> = chomp qqx/$python-config --ldflags --embed/;
 
 mkdir 'resources' unless 'resources'.IO.e;
 mkdir 'resources/libraries' unless 'resources/libraries'.IO.e;

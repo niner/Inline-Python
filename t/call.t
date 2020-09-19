@@ -9,21 +9,21 @@ my $py = Inline::Python.new();
 $py.run('
 
 def test():
-    print "ok 1 - executing a parameterless function without return value";
+    print("ok 1 - executing a parameterless function without return value")
     return;
 
 def test_int_params(a, b):
     if a == 2 and b == 1:
-        print "ok 2 - int params";
+        print("ok 2 - int params")
     else:
-        print "not ok 2 - int params";
+        print("not ok 2 - int params")
     return;
 
 def test_str_params(a, b, i):
     if a == "Hello" and b == "Python":
-        print "ok %i - str params" % i;
+        print("ok %i - str params" % i)
     else:
-        print "not ok %i - str params" % i;
+        print("not ok %i - str params" % i)
     return;
 
 def test_int_retval():
@@ -41,15 +41,14 @@ def test_mixed_retvals():
 def test_none(undef):
     return undef is None;
 
-import types
 def test_hash(h):
     return (
-        isinstance(h, types.DictType)
+        isinstance(h, dict)
         and len(h.keys()) == 2
         and "a" in h
         and "b" in h
         and h["a"] == 2
-        and isinstance(h["b"], types.DictType)
+        and isinstance(h["b"], dict)
         and isinstance(h["b"]["c"], list)
         and len(h["b"]["c"]) == 2
         and h["b"]["c"][0] == 4
@@ -144,6 +143,7 @@ if ($py.call('__main__', 'test_foo', $py.call('__main__', 'Foo', 6)) == 6) {
 else {
     say "not ok 12 - Passing Python objects back from Perl 6";
 }
+$*OUT.flush;
 
 $py.call('__main__', 'test_str_params', :i(13), :a<Hello>, :b<Python>);
 

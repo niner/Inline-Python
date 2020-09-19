@@ -7,7 +7,7 @@ has &!call_method;
 
 use NativeCall;
 
-my constant $pyhelper = %?RESOURCES<libraries/pyhelper>.Str;
+my constant $pyhelper = %?RESOURCES<libraries/pyhelper>;
 
 class PythonObject { ... }
 role PythonParent { ... }
@@ -42,6 +42,9 @@ class ObjectKeeper {
 sub py_init_python(&call_object (int32, Pointer, Pointer --> Pointer), &call_method (int32, Str, Pointer, Pointer --> Pointer))
     is native($pyhelper)
     { ... }
+sub py_destroy_python(--> int32)
+    is native($pyhelper)
+    { ... }
 sub py_init_perl6object()
     is native($pyhelper)
     { ... }
@@ -67,10 +70,7 @@ sub py_float_check(Pointer)
 sub py_unicode_check(Pointer)
     is native($pyhelper)
     returns int32 { ... }
-sub py_ascii_string_check(Pointer)
-    is native($pyhelper)
-    returns int32 { ... }
-sub py_string_check(Pointer)
+sub py_buffer_check(Pointer)
     is native($pyhelper)
     returns int32 { ... }
 sub py_sequence_check(Pointer)
@@ -97,15 +97,19 @@ sub py_float_as_double(Pointer)
 sub py_float_to_py(num64)
     is native($pyhelper)
     returns Pointer { ... }
-sub py_unicode_as_utf8_string(Pointer)
-    is native($pyhelper)
-    returns Pointer { ... }
 sub py_string_as_string(Pointer)
     is native($pyhelper)
     returns Str { ... }
-sub py_string_to_buf(Pointer, CArray[CArray[int8]])
+sub py_bytearray_from_py(Pointer)
+    is native($pyhelper)
+    returns Pointer { ... }
+sub py_size_from_bytearray(Pointer)
     is native($pyhelper)
     returns int32 { ... }
+sub py_contents_from_bytearray(Pointer)
+    is native($pyhelper)
+    returns CArray[int8] { ... }
+
 sub py_str_to_py(int32, Str)
     is native($pyhelper)
     returns Pointer { ... }
@@ -213,6 +217,34 @@ method py_to_p6(Pointer $value) {
     if py_is_none($value) {
         return Any;
     }
+    elsif py_int_check($value) {
+        return py_int_as_long($value);
+    }
+    elsif py_float_check($value) {
+        return py_float_as_double($value);
+    }
+    elsif py_unicode_check($value) {
+        my $p6_str = py_string_as_string($value);
+        return $p6_str;
+    }
+    elsif py_buffer_check($value) {
+        my $bytearray = py_bytearray_from_py($value);
+        my Int $len = py_size_from_bytearray($bytearray);
+        my $carray = py_contents_from_bytearray($bytearray);
+        my $buf = Buf.new;
+        for 0..^$len {
+            $buf[$_] = $carray[$_];
+        }
+        py_dec_ref($bytearray);
+        return $buf;
+
+    }
+    elsif py_sequence_check($value) {
+        return self.py_array_to_array($value);
+    }
+    elsif py_mapping_check($value) {
+        return self.py_dict_to_hash($value);
+    }
     elsif py_instance_check($value) or py_callable_check($value) {
         if py_is_instance($value, $perl6object) {
             return $objects.get(
@@ -229,35 +261,6 @@ method py_to_p6(Pointer $value) {
             py_inc_ref($value);
             return PythonObject.new(python => self, ptr => $value);
         }
-    }
-    elsif py_int_check($value) {
-        return py_int_as_long($value);
-    }
-    elsif py_float_check($value) {
-        return py_float_as_double($value);
-    }
-    elsif py_unicode_check($value) {
-        my $string = py_unicode_as_utf8_string($value) or return;
-        my $p6_str = py_string_as_string($string);
-        py_dec_ref($string);
-        return $p6_str;
-    }
-    elsif py_string_check($value) {
-        my $string_ptr = CArray[CArray[int8]].new;
-        $string_ptr[0] = CArray[int8];
-        my $len = py_string_to_buf($value, $string_ptr);
-        my $buf = Buf.new;
-        for 0..^$len {
-            $buf[$_] = $string_ptr[0][$_];
-        }
-        return $buf;
-
-    }
-    elsif py_sequence_check($value) {
-        return self.py_array_to_array($value);
-    }
-    elsif py_mapping_check($value) {
-        return self.py_dict_to_hash($value);
     }
     return Any;
 }
@@ -347,7 +350,7 @@ method handle_python_exception() is hidden-from-backtrace {
     if $ex_type {
         my $message = self.py_to_p6($ex_message);
         @exception[$_] and py_dec_ref(@exception[$_]) for ^4;
-        die $message.decode('UTF-8');
+        die $message;
     }
 }
 
@@ -551,9 +554,9 @@ method BUILD {
                 if not hasattr(self, '__p6_getattr__'):
                     self.__p6_getattr__ = perl6.invoke(self.index, 'can', [u"__getattr__"])
                 if len(self.__p6_getattr__):
-                    return self.__p6_getattr__[0](self, attr.decode('UTF-8'))
+                    return self.__p6_getattr__[0](self, attr)
                 else:
-                    candidates = perl6.invoke(self.index, 'can', [attr.decode('UTF-8')])
+                    candidates = perl6.invoke(self.index, 'can', [attr])
                     if not len(candidates):
                         raise AttributeError(attr)
                     return partial(candidates[0], self)
@@ -639,6 +642,10 @@ multi sub EVAL(
     my $py = Inline::Python.default_python;
     CATCH { note $_ }
     $py.run($code, |($mode eq 'eval' ?? :eval !! :file));
+}
+
+END {
+    py_destroy_python;
 }
 
 CompUnit::RepositoryRegistry.use-repository(

@@ -7,7 +7,7 @@ use Inline::Python;
 my $py = Inline::Python.new();
 {
     try $py.run(q:heredoc/PYTHON/);
-        raise Exception(u"foo")
+        raise Exception("foo")
         PYTHON
     ok 1, 'survived Python exception';
     ok $!.isa('X::AdHoc'), 'got an exception';
@@ -16,7 +16,7 @@ my $py = Inline::Python.new();
 {
     $py.run(q:heredoc/PYTHON/);
         def perish():
-            raise Exception(u"foo")
+            raise Exception("foo")
         PYTHON
     try $py.call('__main__', 'perish');
     ok 1, 'survived Python exception in function call';
@@ -27,7 +27,7 @@ my $py = Inline::Python.new();
     $py.run(q:heredoc/PYTHON/);
         class Foo:
             def depart(self):
-                raise Exception(u"foo")
+                raise Exception("foo")
         PYTHON
     my $foo = $py.call('__main__', 'Foo');
     $foo.depart;
@@ -60,7 +60,7 @@ my $py = Inline::Python.new();
         ok 1, 'survived Python missing method';
         when X::AdHoc {
             ok $_.isa('X::AdHoc'), 'got an exception for calling missing method';
-            is $_.Str(), "Foo instance has no attribute 'non_existing'", 'exception message found for calling missing method';
+            is $_.Str(), "instance has no attribute 'non_existing'", 'exception message found for calling missing method';
         }
     }
 }
@@ -77,8 +77,8 @@ $py.run(q:heredoc/PYTHON/);
     def test_foo(foo):
         try:
             foo.depart()
-        except Exception, e:
-            return e.message
+        except Exception as e:
+            return str(e)
     PYTHON
 
 is $py.call('__main__', 'test_foo', Foo.new), 'foo';

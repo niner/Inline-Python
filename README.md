@@ -9,7 +9,7 @@ Inline::Python
 ```
     use Inline::Python;
     my $py = Inline::Python.new();
-    $py.run('print "hello world"');
+    $py.run('print("hello world")');
 
     # Or
     say EVAL('1+3', :lang<Python>);
