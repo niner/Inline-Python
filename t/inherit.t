@@ -4,7 +4,7 @@ use v6;
 use Inline::Python;
 use Test;
 
-plan 8;
+plan 9;
 
 my $py = Inline::Python.new();
 
@@ -60,6 +60,15 @@ class Qux does Inline::Python::PythonParent['__main__', 'PyBar'] {
 }
 
 is((Qux.new().test)(), 'Perl6!!');
+
+class My::Qux does Inline::Python::PythonParent['__main__', 'PyBar'] {
+    method qux() {
+        return "Perl6!!";
+    }
+
+}
+
+is((My::Qux.new().test)(), 'Perl6!!');
 
 # Test passing a Py object to the constructor of a P6 subclass
 
