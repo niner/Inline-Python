@@ -43,6 +43,8 @@ With a python in your path, then build:
     make install
 ```
 
+Dockerfile examples with ubuntu dependencies are in df-amd/ and df-arm/ (e.g. docker pull p6steve/rakudo:inline-amd64-2021.05) then just go ```zef install -v Inline::Python --exclude="python3"```
+
 # AUTHOR
 
 Stefan Seifert <nine@detonation.org>
