@@ -108,7 +108,7 @@ sub py_size_from_bytearray(Pointer)
     returns int32 { ... }
 sub py_contents_from_bytearray(Pointer)
     is native($pyhelper)
-    returns CArray[int8] { ... }
+    returns CArray[uint8] { ... }
 
 sub py_str_to_py(int32, Str)
     is native($pyhelper)
