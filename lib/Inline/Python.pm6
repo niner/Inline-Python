@@ -473,8 +473,10 @@ method create_subclass(Str $package, Str $class, Str $subclass_name) {
         .map({"    def {$_.gist}(self, *args): return perl6.invoke(self.__p6_index__, '{$_.gist}', args)"})\
         .join("\n");
     my $baseclass_name = $package eq '__main__' ?? $class !! "$package.$class";
+    my $final_subclass_name = $subclass_name;
+    $final_subclass_name ~~ s:g{'::'} = '__';
     self.run(qq:heredoc/PYTHON/ ~ $methods, :file);
-        class {$subclass_name}($baseclass_name):
+        class {$final_subclass_name}($baseclass_name):
             def __init__(self, i, *args):
                 if i is not None:
                     self.__set_p6_index__(i)
@@ -494,7 +496,9 @@ method create_parent_object(Str $package, Str $class, PythonParent $obj) returns
     my $tuple = py_tuple_new(1);
     my $index = $objects.keep($obj);
     py_tuple_set_item($tuple, 0, self.p6_to_py($index));
-    my $parent = py_call_function($package, $class, $tuple);
+    my $final_class = $class;
+    $final_class ~~ s:g{'::'} = '__';
+    my $parent = py_call_function($package, $final_class, $tuple);
     self.handle_python_exception();
     return self.py_to_p6($parent);
 }
